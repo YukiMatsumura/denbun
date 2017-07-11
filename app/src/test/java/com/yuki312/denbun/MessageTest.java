@@ -32,70 +32,60 @@ public class MessageTest {
   private Application app = RuntimeEnvironment.application;
   private DenbunConfig config;
 
-  @Before
-  public void setup() {
+  @Before public void setup() {
     config = new DenbunConfig(app);
   }
 
-  @After
-  public void teardown() {
+  @After public void teardown() {
     Denbun.reset();
   }
 
-  @Test
-  public void create() {
+  @Test public void create() {
     Denbun.init(config);
     Denbun.of("id");
   }
 
-  @Test(expected = NullPointerException.class)
-  public void initNull() {
+  @Test(expected = NullPointerException.class) public void initNull() {
     Denbun.init(null);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void nullPreference() {
+  @Test(expected = NullPointerException.class) public void nullPreference() {
     config.preference(null);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void notInitialized() {
+  @Test(expected = IllegalStateException.class) public void notInitialized() {
     Denbun.of("id");
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void initTwice() {
+  @Test(expected = IllegalStateException.class) public void initTwice() {
     Denbun.init(config);
     Denbun.init(config);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void nullId() {
+  @Test(expected = IllegalArgumentException.class) public void nullId() {
     Denbun.init(config);
     Denbun.of(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void blankId() {
+  @Test(expected = IllegalArgumentException.class) public void blankId() {
     Denbun.init(config);
     Denbun.of("");
   }
 
-  @Test
-  public void readDefaultPreference() {
+  @Test public void readDefaultPreference() {
     config.preference().setBoolean(Suppressed.of("id"), true);
-    config.preference().setFloat(Frequent.of("id"), Frequency.HIGH.get());
+    config.preference().setInt(Frequent.of("id"), Frequency.HIGH.value);
     config.preference().setLong(PreviousTime.of("id"), 100L);
     Denbun.init(config);
 
     Denbun msg = Denbun.of("id");
+    assertThat(msg.id()).isEqualTo("id");
     assertThat(msg.isSuppress()).isTrue();
     assertThat(msg.isFrequency()).isTrue();
     assertThat(msg.isShowable()).isFalse();
   }
 
-  @Test
-  public void readCustomPreference() {
+  @Test public void readCustomPreference() {
     config.preference(app.getSharedPreferences("readCustomPreference.xml", Context.MODE_PRIVATE));
     Denbun.init(config);
 
@@ -105,8 +95,7 @@ public class MessageTest {
     assertThat(msg.isShowable()).isTrue();
   }
 
-  @Test
-  public void updateState() {
+  @Test public void updateState() {
     Denbun.init(config);
     FrequencyAdapter spy = spy(new FrequencyAdapter() {
       @Override public Frequency increment(@NonNull History history) {
@@ -123,41 +112,40 @@ public class MessageTest {
     assertThat(msg.isFrequency()).isFalse();
   }
 
-  @Test
-  public void incrementFrequency() {
+  @Test public void incrementFrequency() {
     Denbun.init(config);
     FrequencyAdapter spy = spy(new FrequencyAdapter() {
       @Override public Frequency increment(@NonNull History history) {
-        return history.frequency().plus(0.3f);
+        return history.frequency().plus(30);
       }
     });
     Denbun msg = Denbun.of("id", spy);
     msg.suppress(false);
     msg.shown();  // update frequency
 
-    // frequency is now 0.3
+    // frequency is now 30
     verify(spy, times(1)).increment(any());
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
     assertThat(msg.isShowable(false)).isTrue();
     assertThat(msg.isFrequency()).isFalse();
-    assertThat(msg.frequency()).isEqualTo(0.3f);
+    assertThat(msg.frequency()).isEqualTo(30);
 
-    // frequency is now 0.6
+    // frequency is now 60
     msg.shown();
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
     assertThat(msg.isShowable(false)).isTrue();
     assertThat(msg.isFrequency()).isFalse();
-    assertThat(msg.frequency()).isEqualTo(0.6f);
+    assertThat(msg.frequency()).isEqualTo(60);
 
-    // frequency is now 0.9
+    // frequency is now 90
     msg.shown();
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
     assertThat(msg.isShowable(false)).isTrue();
     assertThat(msg.isFrequency()).isFalse();
-    assertThat(msg.frequency()).isEqualTo(0.9f);
+    assertThat(msg.frequency()).isEqualTo(90);
 
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
@@ -165,12 +153,12 @@ public class MessageTest {
     assertThat(msg.isShowable(true)).isFalse();
     assertThat(msg.isFrequency()).isFalse();
 
-    // frequency is now 1.0f(high)
+    // frequency is now 100(high)
     msg.shown();
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isFalse();
     assertThat(msg.isShowable(true)).isFalse();
     assertThat(msg.isFrequency()).isTrue();
-    assertThat(msg.frequency()).isEqualTo(Frequency.HIGH.get());
+    assertThat(msg.frequency()).isEqualTo(Frequency.HIGH.value);
   }
 }

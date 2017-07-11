@@ -19,7 +19,7 @@ public class Denbun {
   public static FrequencyAdapter DEFAULT_FREQUENCY_ADAPTER = new FrequencyAdapter() {
     @Override public Frequency increment(@NonNull History history) {
       // The default behavior is to always return the same value.
-      return new Frequency(history.frequency().get());
+      return new Frequency(history.frequency().value);
     }
   };
 
@@ -43,8 +43,7 @@ public class Denbun {
     initialized = true;
   }
 
-  @VisibleForTesting
-  static void reset() {
+  @VisibleForTesting static void reset() {
     initialized = false;
     pref = null;
     shared = null;
@@ -63,15 +62,12 @@ public class Denbun {
     if (shared.containsKey(id)) {
       return shared.get(id);
     }
-    Denbun msg = new Denbun.Builder(id)
-        .frequencyAdapter(adapter)
-        .build();
+    Denbun msg = new Denbun.Builder(id).frequencyAdapter(adapter).build();
     shared.put(id, msg);
     return msg;
   }
 
-  private Denbun(@NonNull String id,
-      @NonNull FrequencyAdapter frequencyAdapter,
+  private Denbun(@NonNull String id, @NonNull FrequencyAdapter frequencyAdapter,
       @NonNull HistoryImpl history) {
     this.id = nonNull(id);
     this.frequencyAdapter = nonNull(frequencyAdapter);
@@ -100,8 +96,8 @@ public class Denbun {
     return history.frequency().high();
   }
 
-  public float frequency() {
-    return history.frequency().get();
+  public int frequency() {
+    return history.frequency().value;
   }
 
   /**
@@ -121,11 +117,11 @@ public class Denbun {
   }
 
   public boolean isShowable(boolean checkBeforeShowing) {
-    Frequency original = history.frequency();
+    Frequency frequency = history.frequency();
     if (checkBeforeShowing) {
-      original.plus(frequencyAdapter.increment(history));
+      frequency = frequency.plus(frequencyAdapter.increment(history));
     }
-    return !history.suppress() && !original.high();
+    return !history.suppress() && !frequency.high();
   }
 
   public Denbun shown() {

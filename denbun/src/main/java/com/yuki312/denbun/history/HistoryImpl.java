@@ -45,13 +45,13 @@ public class HistoryImpl implements History {
 
   private void load() {
     this.suppressed = pref.getBoolean(Suppressed.of(id), false);
-    this.frequency = new Frequency(pref.getFloat(Frequent.of(id), 0f));
+    this.frequency = new Frequency(pref.getInt(Frequent.of(id), 0));
     this.previousTime = pref.getLong(PreviousTime.of(id), 0L);
   }
 
   private void save() {
     pref.setBoolean(Suppressed.of(id), suppressed);
-    pref.setFloat(Frequent.of(id), frequency.get());
+    pref.setInt(Frequent.of(id), frequency.value);
     pref.setLong(PreviousTime.of(id), previousTime);
     load();
   }
@@ -67,7 +67,7 @@ public class HistoryImpl implements History {
   }
 
   @Override public Frequency frequency() {
-    return new Frequency(frequency.get());
+    return new Frequency(frequency.value);
   }
 
   public HistoryImpl frequency(Frequency frequency) {
