@@ -23,7 +23,7 @@ public class Frequency {
     return new Frequency(value);
   }
 
-  public Frequency(int value) {
+  private Frequency(int value) {
     this.value = max(MIN, min(value, MAX));
   }
 
@@ -45,7 +45,7 @@ public class Frequency {
     return Frequency.of(this.value + value);
   }
 
-  public boolean high() {
+  public boolean isHigh() {
     return this.value == MAX;
   }
 

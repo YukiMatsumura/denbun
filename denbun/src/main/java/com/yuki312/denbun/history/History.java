@@ -4,9 +4,9 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.yuki312.denbun.HistoryRecord;
 
-import static com.yuki312.denbun.history.History.KeyType.Frequent;
-import static com.yuki312.denbun.history.History.KeyType.PreviousTime;
-import static com.yuki312.denbun.history.History.KeyType.Suppressed;
+import static com.yuki312.denbun.history.History.Key.Frequent;
+import static com.yuki312.denbun.history.History.Key.Recent;
+import static com.yuki312.denbun.history.History.Key.Suppressed;
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
 
@@ -20,23 +20,23 @@ public class History implements HistoryRecord {
 
   private boolean suppressed = false;
   private Frequency frequency = Frequency.LOW;
-  private long previousTime = 0L;
+  private long recent = 0L;
 
-  public enum KeyType {
-    Suppressed("_supp"), Frequent("_freq"), PreviousTime("_prev");
+  public enum Key {
+    Suppressed("_supp"), Frequent("_freq"), Recent("_recent");
 
     public final String SUFFIX;
 
-    KeyType(String suffix) {
+    Key(String suffix) {
       this.SUFFIX = suffix;
     }
 
-    public String of(@NonNull String originKey) {
-      return originKey + SUFFIX;
+    public String of(@NonNull String baseKey) {
+      return baseKey + SUFFIX;
     }
   }
 
-  public History(@NonNull String id, @NonNull SharedPreferences preference) {
+  History(@NonNull String id, @NonNull SharedPreferences preference) {
     notBlank(id);
     nonNull(preference);
 
@@ -47,14 +47,14 @@ public class History implements HistoryRecord {
 
   private void load() {
     this.suppressed = pref.getBoolean(Suppressed.of(id), false);
-    this.frequency = new Frequency(pref.getInt(Frequent.of(id), 0));
-    this.previousTime = pref.getLong(PreviousTime.of(id), 0L);
+    this.frequency = Frequency.of(pref.getInt(Frequent.of(id), 0));
+    this.recent = pref.getLong(Recent.of(id), 0L);
   }
 
   private void save() {
     pref.setBoolean(Suppressed.of(id), suppressed);
     pref.setInt(Frequent.of(id), frequency.value);
-    pref.setLong(PreviousTime.of(id), previousTime);
+    pref.setLong(Recent.of(id), recent);
     load();
   }
 
@@ -69,7 +69,7 @@ public class History implements HistoryRecord {
   }
 
   @Override public Frequency frequency() {
-    return new Frequency(frequency.value);
+    return frequency;
   }
 
   public History frequency(Frequency frequency) {
@@ -78,12 +78,12 @@ public class History implements HistoryRecord {
     return this;
   }
 
-  @Override public long previousTime() {
-    return previousTime;
+  @Override public long recent() {
+    return recent;
   }
 
-  public History previousTime(long epochMs) {
-    this.previousTime = epochMs;
+  public History recent(long epochMs) {
+    this.recent = epochMs;
     save();
     return this;
   }

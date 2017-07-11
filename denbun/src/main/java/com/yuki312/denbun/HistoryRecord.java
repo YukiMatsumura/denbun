@@ -11,5 +11,5 @@ public interface HistoryRecord {
 
   Frequency frequency();
 
-  public long previousTime();
+  public long recent();
 }

@@ -11,7 +11,7 @@ import static com.yuki312.denbun.Util.nonNull;
 /**
  * Denbun system-wide configuration.
  */
-public class DenbunConfig {
+public final class DenbunConfig {
 
   public static final String PREF_NAME = "com.yuki312.denbun.xml";
 
@@ -37,7 +37,7 @@ public class DenbunConfig {
     return preference;
   }
 
-  public DenbunConfig historyProvider(@NonNull HistoryProvider factory) {
+  DenbunConfig historyProvider(@NonNull HistoryProvider factory) {
     nonNull(factory);
 
     this.historyProvider = factory;

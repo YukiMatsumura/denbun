@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     Denbun msg = Denbun.of("hoge");
     Log.e("TEST", "suppress= " + msg.isSuppress());
     Log.e("TEST", "frequency= " + msg.isFrequency());
-    Log.e("TEST", "prevtime= " + msg.previousTime());
+    Log.e("TEST", "prevtime= " + msg.recent());
 
     msg.shown();
   }

@@ -1,14 +1,11 @@
 package com.yuki312.denbun;
 
-import android.content.SharedPreferences;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.yuki312.denbun.history.Frequency;
 import com.yuki312.denbun.history.History;
-import com.yuki312.denbun.history.HistoryProvider;
-import com.yuki312.denbun.history.Pref;
 import java.util.HashMap;
 
 import static com.yuki312.denbun.Util.nonNull;
@@ -22,11 +19,10 @@ public class Denbun {
   public static FrequencyAdapter DEFAULT_FREQUENCY_ADAPTER = new FrequencyAdapter() {
     @Override public Frequency increment(@NonNull HistoryRecord historyRecord) {
       // The default behavior is to always return the same value.
-      return new Frequency(historyRecord.frequency().value);
+      return historyRecord.frequency();
     }
   };
 
-  private static boolean initialized = false;
   private static DenbunConfig config;
   private static HashMap<String, Denbun> shared;
 
@@ -35,7 +31,7 @@ public class Denbun {
   private final FrequencyAdapter frequencyAdapter;
 
   public static void init(@NonNull DenbunConfig config) {
-    if (Denbun.config != null) {
+    if (initialized()) {
       throw new IllegalStateException(
           "Denbun is already initialized. Denbun.init(config) calls are allowed only once.");
     }
@@ -43,13 +39,15 @@ public class Denbun {
     nonNull(config);
     Denbun.config = config;
     Denbun.shared = new HashMap<>();
-    initialized = true;
   }
 
   @VisibleForTesting static void reset() {
-    initialized = false;
     config = null;
     shared = null;
+  }
+
+  private static boolean initialized() {
+    return config != null;
   }
 
   @CheckResult public static Denbun of(@NonNull String id) {
@@ -57,9 +55,9 @@ public class Denbun {
   }
 
   @CheckResult public static Denbun of(@NonNull String id, @Nullable FrequencyAdapter adapter) {
-    if (!initialized) {
+    if (!initialized()) {
       throw new IllegalStateException(
-          "Denbun is not initialized. Call Denbun.init(config) before use.");
+          "Denbun is not initialized. Call Denbun.init(config) in Application.onCreate().");
     }
 
     if (shared.containsKey(id)) {
@@ -105,21 +103,14 @@ public class Denbun {
    * 短時間の間に複数回メッセージが表示されたかを判断したい場合などにこのフラグは使用できる.
    */
   public boolean isFrequency() {
-    return history.frequency().high();
-  }
-
-  /**
-   * メッセージの表示頻度
-   */
-  public int frequency() {
-    return history.frequency().value;
+    return history.frequency().isHigh();
   }
 
   /**
    * このメッセージが最後に表示された日時.
    */
-  public long previousTime() {
-    return history.previousTime();
+  public long recent() {
+    return history.recent();
   }
 
   /**
@@ -132,28 +123,20 @@ public class Denbun {
     return this;
   }
 
+  public Denbun clearFrequency() {
+    history.frequency(Frequency.LOW);
+    return this;
+  }
+
   /**
-   * このメッセージが表示可能かどうか.
-   * メッセージ表示頻度は事前に評価されない.
+   * このメッセージが表示可能かどうかを確認する.
+   * 表示可能性は, メッセージの表示頻度が評価された上で算出される.
+   * つまり, このメッセージを表示することによって表示頻度が過度であると判断される場合はfalseを返す.
    *
    * @return 表示可能であればtrue, それ以外はfalse.
    */
   public boolean isShowable() {
-    return isShowable(false);
-  }
-
-  /**
-   * このメッセージが表示可能かどうか.
-   *
-   * @param checkBeforeShowing メッセージ表示頻度を事前に評価した上で判定する場合はtrue, それ以外はfalse.
-   * @return 表示可能であればtrue, それ以外はfalse.
-   */
-  public boolean isShowable(boolean checkBeforeShowing) {
-    Frequency frequency = history.frequency();
-    if (checkBeforeShowing) {
-      frequency = frequency.plus(frequencyAdapter.increment(history));
-    }
-    return !history.suppress() && !frequency.high();
+    return !history.suppress() && !frequencyAdapter.increment(history).isHigh();
   }
 
   /**
@@ -161,14 +144,12 @@ public class Denbun {
    */
   public Denbun shown() {
     history.frequency(frequencyAdapter.increment(history));
-    history.previousTime(System.currentTimeMillis());
+    history.recent(System.currentTimeMillis());
     return this;
   }
 
   /*
    * Denbun Builder.
-    *
-    *
    */
   private static class Builder {
 
