@@ -9,8 +9,6 @@ import android.support.annotation.Nullable;
  */
 public class Pref {
 
-  public static final String PREF_NAME = "com.yuki312.denbun";
-
   private final SharedPreferences pref;
 
   public Pref(@NonNull SharedPreferences pref) {

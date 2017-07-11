@@ -1,18 +1,19 @@
 package com.yuki312.denbun.history;
 
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.History;
+import com.yuki312.denbun.HistoryRecord;
 
-import static com.yuki312.denbun.history.HistoryImpl.KeyType.Frequent;
-import static com.yuki312.denbun.history.HistoryImpl.KeyType.PreviousTime;
-import static com.yuki312.denbun.history.HistoryImpl.KeyType.Suppressed;
+import static com.yuki312.denbun.history.History.KeyType.Frequent;
+import static com.yuki312.denbun.history.History.KeyType.PreviousTime;
+import static com.yuki312.denbun.history.History.KeyType.Suppressed;
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
 
 /**
  * Created by Yuki312 on 2017/07/04.
  */
-public class HistoryImpl implements History {
+public class History implements HistoryRecord {
 
   private final Pref pref;
   private final String id;
@@ -22,9 +23,7 @@ public class HistoryImpl implements History {
   private long previousTime = 0L;
 
   public enum KeyType {
-    Suppressed("_supp"),
-    Frequent("_freq"),
-    PreviousTime("_prev");
+    Suppressed("_supp"), Frequent("_freq"), PreviousTime("_prev");
 
     public final String SUFFIX;
 
@@ -37,9 +36,12 @@ public class HistoryImpl implements History {
     }
   }
 
-  public HistoryImpl(@NonNull String id, @NonNull Pref pref) {
-    this.pref = nonNull(pref);
-    this.id = notBlank(id);
+  public History(@NonNull String id, @NonNull SharedPreferences preference) {
+    notBlank(id);
+    nonNull(preference);
+
+    this.id = id;
+    this.pref = new Pref(preference);
     load();
   }
 
@@ -60,7 +62,7 @@ public class HistoryImpl implements History {
     return suppressed;
   }
 
-  public HistoryImpl suppress(boolean suppressed) {
+  public History suppress(boolean suppressed) {
     this.suppressed = suppressed;
     save();
     return this;
@@ -70,7 +72,7 @@ public class HistoryImpl implements History {
     return new Frequency(frequency.value);
   }
 
-  public HistoryImpl frequency(Frequency frequency) {
+  public History frequency(Frequency frequency) {
     this.frequency = frequency;
     save();
     return this;
@@ -80,7 +82,7 @@ public class HistoryImpl implements History {
     return previousTime;
   }
 
-  public HistoryImpl previousTime(long epochMs) {
+  public History previousTime(long epochMs) {
     this.previousTime = epochMs;
     save();
     return this;

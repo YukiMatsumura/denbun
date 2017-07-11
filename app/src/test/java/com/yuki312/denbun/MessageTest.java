@@ -12,9 +12,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.yuki312.denbun.history.HistoryImpl.KeyType.Frequent;
-import static com.yuki312.denbun.history.HistoryImpl.KeyType.PreviousTime;
-import static com.yuki312.denbun.history.HistoryImpl.KeyType.Suppressed;
+import static com.yuki312.denbun.history.History.KeyType.Frequent;
+import static com.yuki312.denbun.history.History.KeyType.PreviousTime;
+import static com.yuki312.denbun.history.History.KeyType.Suppressed;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -98,7 +98,7 @@ public class MessageTest {
   @Test public void updateState() {
     Denbun.init(config);
     FrequencyAdapter spy = spy(new FrequencyAdapter() {
-      @Override public Frequency increment(@NonNull History history) {
+      @Override public Frequency increment(@NonNull HistoryRecord history) {
         return history.frequency();  // no-op
       }
     });
@@ -115,7 +115,7 @@ public class MessageTest {
   @Test public void incrementFrequency() {
     Denbun.init(config);
     FrequencyAdapter spy = spy(new FrequencyAdapter() {
-      @Override public Frequency increment(@NonNull History history) {
+      @Override public Frequency increment(@NonNull HistoryRecord history) {
         return history.frequency().plus(30);
       }
     });
