@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.yuki312.denbun.history.Frequency;
 import com.yuki312.denbun.history.History;
+import com.yuki312.denbun.time.Time;
 import java.util.HashMap;
 
 import static com.yuki312.denbun.Util.nonNull;
@@ -144,7 +145,7 @@ public class Denbun {
    */
   public Denbun shown() {
     history.frequency(frequencyAdapter.increment(history));
-    history.recent(System.currentTimeMillis());
+    history.recent(Time.now());
     return this;
   }
 

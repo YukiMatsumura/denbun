@@ -80,8 +80,8 @@ public class History implements HistoryRecord {
 
   @Override public long recent() {
     return recent;
-  }
 
+  }
   public History recent(long epochMs) {
     this.recent = epochMs;
     save();

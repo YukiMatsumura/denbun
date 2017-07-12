@@ -7,8 +7,12 @@ import android.support.annotation.NonNull;
 import com.yuki312.denbun.history.Frequency;
 import com.yuki312.denbun.history.History;
 import com.yuki312.denbun.history.HistoryProvider;
+import com.yuki312.denbun.time.Time;
+import com.yuki312.denbun.time.TimeRule;
+import java.util.Calendar;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -30,6 +34,8 @@ import static org.mockito.Mockito.verify;
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class MessageTest {
+
+  @Rule public TimeRule timeRule = new TimeRule();
 
   private Application app = RuntimeEnvironment.application;
   private DenbunConfig config;
@@ -162,5 +168,40 @@ public class MessageTest {
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isFalse();
     assertThat(msg.isFrequency()).isTrue();
+  }
+
+  @Test public void showPerDay() {
+    Denbun.init(config);
+    long now = System.currentTimeMillis();
+    timeRule.advanceTimeTo(now);
+
+    FrequencyAdapter freq = new FrequencyAdapter() {
+      @Override public Frequency increment(@NonNull HistoryRecord historyRecord) {
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTimeInMillis(Time.now());
+        cal2.setTimeInMillis(historyRecord.recent());
+
+        cal2.add(Calendar.DATE, 1);
+        if (cal1.compareTo(cal2) >= 0) {
+          return Frequency.LOW;
+        } else {
+          return Frequency.HIGH;
+        }
+      }
+    };
+
+    Denbun msg = Denbun.of("id", freq);
+    assertThat(msg.isShowable()).isTrue();
+    msg.shown();
+
+    assertThat(msg.isShowable()).isFalse();
+
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeInMillis(now);
+    cal.add(Calendar.DATE, 1);
+    timeRule.advanceTimeTo(cal.getTimeInMillis());
+
+    assertThat(msg.isShowable()).isTrue();
   }
 }
