@@ -1,4 +1,4 @@
-package com.yuki312.denbun.history;
+package com.yuki312.denbun.state;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.IntRange;

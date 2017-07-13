@@ -12,15 +12,5 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
-    DenbunConfig config = new DenbunConfig(getApplication());
-    Denbun.init(config);
-
-    Denbun msg = Denbun.of("hoge");
-    Log.e("TEST", "suppress= " + msg.isSuppress());
-    Log.e("TEST", "frequency= " + msg.isFrequency());
-    Log.e("TEST", "prevtime= " + msg.recent());
-
-    msg.shown();
   }
 }

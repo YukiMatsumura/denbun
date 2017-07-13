@@ -23,7 +23,7 @@ public class TimeRule implements TestRule {
    */
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
-  @interface Now {
+  public @interface Now {
 
     /**
      * 固定する日時を指定する.
