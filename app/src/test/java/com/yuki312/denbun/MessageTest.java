@@ -10,7 +10,9 @@ import com.yuki312.denbun.state.CoreProvider;
 import com.yuki312.denbun.state.State;
 import com.yuki312.denbun.time.Time;
 import com.yuki312.denbun.time.TimeRule;
+import com.yuki312.denbun.time.TimeRule.Now;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,6 +21,11 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -182,20 +189,18 @@ public class MessageTest {
     assertThat(msg.isFrequency()).isTrue();
   }
 
-  @Test @TimeRule.Now public void showPerDay() {
+  @Test @Now public void showablePerDay() {
     DenbunPool.init(config);
     long now = System.currentTimeMillis();
     timeRule.advanceTimeTo(now);
 
     FrequencyInterceptor freq = new FrequencyInterceptor() {
       @Override public Frequency increment(@NonNull State state) {
-        Calendar cal1 = Calendar.getInstance();
-        Calendar cal2 = Calendar.getInstance();
-        cal1.setTimeInMillis(Time.now());
-        cal2.setTimeInMillis(state.recent);
+        LocalDateTime now = OffsetDateTime.ofInstant(Instant.ofEpochMilli(Time.now()), ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime yesterday = now.minusDays(1);
+        LocalDateTime recent = OffsetDateTime.ofInstant(Instant.ofEpochMilli(state.recent), ZoneId.systemDefault()).toLocalDateTime();
 
-        cal2.add(Calendar.DATE, 1);
-        if (cal1.compareTo(cal2) >= 0) {
+        if (recent.isBefore(yesterday) || recent.isEqual(yesterday)) {
           return Frequency.LOW;
         } else {
           return Frequency.HIGH;
@@ -217,5 +222,28 @@ public class MessageTest {
     timeRule.advanceTimeTo(cal.getTimeInMillis());
 
     assertThat(msg.isShowable()).isTrue();
+  }
+
+  @Test public void showableOnly3Times() {
+    DenbunPool.init(config);
+
+    FrequencyInterceptor freq = new FrequencyInterceptor() {
+      @Override public Frequency increment(@NonNull State state) {
+        return state.frequency.plus(Frequency.HIGH.value / 3);
+      }
+    };
+
+    Denbun msg = DenbunPool.get("id")
+        .frequencyInterceptor(freq);
+    assertThat(msg.isShowable()).isTrue();
+    msg.shown();
+
+    assertThat(msg.isShowable()).isTrue();
+    msg.shown();
+
+    assertThat(msg.isShowable()).isTrue();
+    msg.shown();
+
+    assertThat(msg.isShowable()).isFalse();
   }
 }
