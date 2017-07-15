@@ -1,13 +1,13 @@
-package com.yuki312.denbun.core;
+package com.yuki312.denbun.internal;
 
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
-import static com.yuki312.denbun.core.Pref.Key.Count;
-import static com.yuki312.denbun.core.Pref.Key.Freq;
-import static com.yuki312.denbun.core.Pref.Key.Recent;
+import static com.yuki312.denbun.internal.Pref.Key.Count;
+import static com.yuki312.denbun.internal.Pref.Key.Freq;
+import static com.yuki312.denbun.internal.Pref.Key.Recent;
 
 /**
  * Created by Yuki312 on 2017/07/01.

@@ -1,4 +1,4 @@
-package com.yuki312.denbun.core;
+package com.yuki312.denbun.internal;
 
 import android.support.annotation.NonNull;
 

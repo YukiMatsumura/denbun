@@ -1,8 +1,8 @@
 package com.yuki312.denbun;
 
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.core.Frequency;
-import com.yuki312.denbun.core.State;
+import com.yuki312.denbun.internal.Frequency;
+import com.yuki312.denbun.internal.State;
 
 /**
  * Created by Yuki312 on 2017/07/08.

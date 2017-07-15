@@ -2,8 +2,8 @@ package com.yuki312.denbun;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.yuki312.denbun.core.DenbunCore;
-import com.yuki312.denbun.core.Frequency;
+import com.yuki312.denbun.internal.DenbunCore;
+import com.yuki312.denbun.internal.Frequency;
 
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
