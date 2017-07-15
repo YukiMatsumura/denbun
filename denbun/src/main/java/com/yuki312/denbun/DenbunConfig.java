@@ -3,7 +3,7 @@ package com.yuki312.denbun;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.state.CoreProvider;
+import com.yuki312.denbun.core.CoreProvider;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.yuki312.denbun.Util.nonNull;

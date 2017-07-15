@@ -1,13 +1,13 @@
-package com.yuki312.denbun.state;
+package com.yuki312.denbun.core;
 
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
-import static com.yuki312.denbun.state.Pref.Key.Freq;
-import static com.yuki312.denbun.state.Pref.Key.Recent;
-import static com.yuki312.denbun.state.Pref.Key.Supp;
+import static com.yuki312.denbun.core.Pref.Key.Count;
+import static com.yuki312.denbun.core.Pref.Key.Freq;
+import static com.yuki312.denbun.core.Pref.Key.Recent;
 
 /**
  * Created by Yuki312 on 2017/07/01.
@@ -15,7 +15,7 @@ import static com.yuki312.denbun.state.Pref.Key.Supp;
 class Pref {
 
   enum Key {
-    Supp("_supp"), Freq("_freq"), Recent("_recent");
+    Freq("_freq"), Recent("_recent"), Count("_cnt");
 
     public final String SUFFIX;
 
@@ -28,9 +28,9 @@ class Pref {
     }
   }
 
-  private static final boolean SUPP_DEFAULT = false;
   private static final int FREQ_DEFAULT = 0;
   private static final long RECENT_DEFAULT = 0L;
+  private static final int COUNT_DEFAULT = 0;
 
   private final String id;
   private final SharedPreferences pref;
@@ -41,19 +41,15 @@ class Pref {
   }
 
   public void save(State state) {
-    pref.edit().putBoolean(Supp.of(id), state.suppress).apply();
     pref.edit().putInt(Freq.of(id), state.frequency.value).apply();
     pref.edit().putLong(Recent.of(id), state.recent).apply();
+    pref.edit().putInt(Count.of(id), state.count).apply();
   }
 
   public State load() {
     return new State(
-        pref.getBoolean(Supp.of(id), SUPP_DEFAULT),
         Frequency.of(pref.getInt(Freq.of(id), FREQ_DEFAULT)),
-        pref.getLong(Recent.of(id), RECENT_DEFAULT));
-  }
-
-  public boolean suppress() {
-    return pref.getBoolean(Supp.of(id), SUPP_DEFAULT);
+        pref.getLong(Recent.of(id), RECENT_DEFAULT),
+        pref.getInt(Count.of(id), COUNT_DEFAULT));
   }
 }

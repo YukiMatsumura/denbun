@@ -1,4 +1,4 @@
-package com.yuki312.denbun.state;
+package com.yuki312.denbun.core;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.IntRange;
@@ -12,19 +12,19 @@ import static java.lang.Math.min;
  */
 public class Frequency {
 
-  private static final int MAX = 100;
-  private static final int MIN = 0;
-  public static final Frequency HIGH = new Frequency(MAX);
-  public static final Frequency LOW = new Frequency(MIN);
+  private static final int UPPER = 100;
+  private static final int LOWER = 0;
+  public static final Frequency MAX = new Frequency(UPPER);
+  public static final Frequency MIN = new Frequency(LOWER);
 
   public final int value;
 
-  @CheckResult public static Frequency of(@IntRange(from = MIN, to = MAX) int value) {
+  @CheckResult public static Frequency of(@IntRange(from = LOWER, to = UPPER) int value) {
     return new Frequency(value);
   }
 
   private Frequency(int value) {
-    this.value = max(MIN, min(value, MAX));
+    this.value = max(LOWER, min(value, UPPER));
   }
 
   @CheckResult public Frequency plus(@Nullable Frequency frequency) {
@@ -45,8 +45,8 @@ public class Frequency {
     return Frequency.of(this.value + value);
   }
 
-  public boolean isHigh() {
-    return this.value == MAX;
+  public boolean isLimit() {
+    return this.value == UPPER;
   }
 
   @Override public boolean equals(Object o) {

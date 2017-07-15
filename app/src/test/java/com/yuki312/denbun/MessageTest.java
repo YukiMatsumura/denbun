@@ -4,15 +4,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.state.Frequency;
-import com.yuki312.denbun.state.DenbunCore;
-import com.yuki312.denbun.state.CoreProvider;
-import com.yuki312.denbun.state.State;
+import com.yuki312.denbun.core.Frequency;
+import com.yuki312.denbun.core.DenbunCore;
+import com.yuki312.denbun.core.CoreProvider;
+import com.yuki312.denbun.core.State;
 import com.yuki312.denbun.time.Time;
 import com.yuki312.denbun.time.TimeRule;
 import com.yuki312.denbun.time.TimeRule.Now;
 import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,7 +21,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
@@ -46,10 +44,10 @@ public class MessageTest {
   private DenbunConfig config;
   private DenbunCore core;
 
-  private void set(boolean suppress, int frequency, long recent) {
-    core.suppress(suppress);
+  private void set(int frequency, long recent, int count) {
     core.frequency(Frequency.of(frequency));
     core.recent(recent);
+    core.count(count);
   }
 
   @Before public void setup() {
@@ -103,11 +101,12 @@ public class MessageTest {
     DenbunPool.init(config);
 
     Denbun msg = DenbunPool.get("id");
-    set(true, Frequency.HIGH.value, 100L);
+    set(Frequency.MAX.value, 100L, 3);
 
     assertThat(msg.id()).isEqualTo("id");
     assertThat(msg.isSuppress()).isTrue();
-    assertThat(msg.isFrequency()).isTrue();
+    assertThat(msg.recent()).isEqualTo(100L);
+    assertThat(msg.count()).isEqualTo(3);
     assertThat(msg.isShowable()).isFalse();
   }
 
@@ -116,48 +115,60 @@ public class MessageTest {
     DenbunPool.init(config);
 
     Denbun msg = DenbunPool.get("id");
-    assertThat(msg.isSuppress()).isFalse();
-    assertThat(msg.isFrequency()).isFalse();
-    assertThat(msg.isShowable()).isTrue();
+    set(Frequency.MAX.value, 100L, 3);
 
-    set(true, Frequency.HIGH.value, 100L);
     assertThat(msg.isSuppress()).isTrue();
-    assertThat(msg.isFrequency()).isTrue();
+    assertThat(msg.recent()).isEqualTo(100L);
+    assertThat(msg.count()).isEqualTo(3);
     assertThat(msg.isShowable()).isFalse();
 
-    SharedPreferences pref = app.getSharedPreferences("readCustomPreference.xml", Context.MODE_PRIVATE);
-    assertThat(pref.getBoolean("id_supp", false)).isTrue();
+    SharedPreferences pref =
+        app.getSharedPreferences("readCustomPreference.xml", Context.MODE_PRIVATE);
     assertThat(pref.getInt("id_freq", -1)).isEqualTo(100);
     assertThat(pref.getLong("id_recent", -1)).isEqualTo(100L);
+    assertThat(pref.getInt("id_cnt", -1)).isEqualTo(3);
   }
 
-  @Test public void updateState() {
+  @Test public void defaultState() {
     DenbunPool.init(config);
-    FrequencyInterceptor spy = spy(new FrequencyInterceptor() {
+
+    Denbun msg = DenbunPool.get("id");
+
+    assertThat(msg.id()).isEqualTo("id");
+    assertThat(msg.isSuppress()).isFalse();
+    assertThat(msg.recent()).isEqualTo(0L);
+    assertThat(msg.count()).isEqualTo(0);
+    assertThat(msg.isShowable()).isTrue();
+  }
+
+  @Test @Now public void updateState() {
+    DenbunPool.init(config);
+    FrequencyAdjuster spy = spy(new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State state) {
         return state.frequency;  // no-op
       }
     });
-    Denbun msg = DenbunPool.get("id")
-        .frequencyInterceptor(spy)
-        .suppress(true)
-        .shown();  // update frequency
+    timeRule.advanceTimeTo(100L);
 
-    verify(spy, times(1)).increment(any());
+    Denbun msg = DenbunPool.get("id")
+        .frequencyAdjuster(spy)
+        .suppress(true)
+        .shown();
+
     assertThat(msg.isSuppress()).isTrue();
-    assertThat(msg.isShowable()).isFalse();
-    assertThat(msg.isFrequency()).isFalse();
+    assertThat(msg.recent()).isEqualTo(100L);
+    assertThat(msg.count()).isEqualTo(1);
   }
 
   @Test public void incrementFrequency() {
     DenbunPool.init(config);
-    FrequencyInterceptor spy = spy(new FrequencyInterceptor() {
+    FrequencyAdjuster spy = spy(new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State history) {
         return history.frequency.plus(30);
       }
     });
     Denbun msg = DenbunPool.get("id")
-        .frequencyInterceptor(spy)
+        .frequencyAdjuster(spy)
         .suppress(false);
 
     msg.shown();  // frequency is now 30
@@ -165,28 +176,34 @@ public class MessageTest {
     assertThat(core.state().frequency.value).isEqualTo(30);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
-    assertThat(msg.isFrequency()).isFalse();
 
     msg.shown();  // frequency is now 60
     verify(spy, times(3)).increment(any());  // increment(..) was called by isShowable() and shown()
     assertThat(core.state().frequency.value).isEqualTo(60);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
-    assertThat(msg.isFrequency()).isFalse();
 
     msg.shown();  // frequency is now 90
     verify(spy, times(5)).increment(any());
     assertThat(core.state().frequency.value).isEqualTo(90);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isFalse();
-    assertThat(msg.isFrequency()).isFalse();
 
     msg.shown();  // frequency is now 100(high)
     verify(spy, times(7)).increment(any());
-    assertThat(core.state().frequency.value).isEqualTo(Frequency.HIGH.value);
-    assertThat(msg.isSuppress()).isFalse();
+    assertThat(core.state().frequency.value).isEqualTo(Frequency.MAX.value);
+    assertThat(msg.isSuppress()).isTrue();
     assertThat(msg.isShowable()).isFalse();
-    assertThat(msg.isFrequency()).isTrue();
+  }
+
+  @Test public void resetFrequency() {
+    DenbunPool.init(config);
+    Denbun msg = DenbunPool.get("id")
+        .suppress(true);
+    assertThat(msg.isSuppress()).isTrue();
+
+    msg.suppress(false);
+    assertThat(msg.isSuppress()).isFalse();
   }
 
   @Test @Now public void showablePerDay() {
@@ -194,22 +211,26 @@ public class MessageTest {
     long now = System.currentTimeMillis();
     timeRule.advanceTimeTo(now);
 
-    FrequencyInterceptor freq = new FrequencyInterceptor() {
+    FrequencyAdjuster freq = new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State state) {
-        LocalDateTime now = OffsetDateTime.ofInstant(Instant.ofEpochMilli(Time.now()), ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime now =
+            OffsetDateTime.ofInstant(Instant.ofEpochMilli(Time.now()), ZoneId.systemDefault())
+                .toLocalDateTime();
         LocalDateTime yesterday = now.minusDays(1);
-        LocalDateTime recent = OffsetDateTime.ofInstant(Instant.ofEpochMilli(state.recent), ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime recent =
+            OffsetDateTime.ofInstant(Instant.ofEpochMilli(state.recent), ZoneId.systemDefault())
+                .toLocalDateTime();
 
         if (recent.isBefore(yesterday) || recent.isEqual(yesterday)) {
-          return Frequency.LOW;
+          return Frequency.MIN;
         } else {
-          return Frequency.HIGH;
+          return Frequency.MAX;
         }
       }
     };
 
     Denbun msg = DenbunPool.get("id")
-        .frequencyInterceptor(freq);
+        .frequencyAdjuster(freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 
@@ -227,14 +248,14 @@ public class MessageTest {
   @Test public void showableOnly3Times() {
     DenbunPool.init(config);
 
-    FrequencyInterceptor freq = new FrequencyInterceptor() {
+    FrequencyAdjuster freq = new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State state) {
-        return state.frequency.plus(Frequency.HIGH.value / 3);
+        return state.frequency.plus(Frequency.MAX.value / 3);
       }
     };
 
     Denbun msg = DenbunPool.get("id")
-        .frequencyInterceptor(freq);
+        .frequencyAdjuster(freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 

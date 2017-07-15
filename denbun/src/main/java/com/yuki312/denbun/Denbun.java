@@ -2,8 +2,8 @@ package com.yuki312.denbun;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.yuki312.denbun.state.DenbunCore;
-import com.yuki312.denbun.state.Frequency;
+import com.yuki312.denbun.core.DenbunCore;
+import com.yuki312.denbun.core.Frequency;
 
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
@@ -31,16 +31,7 @@ public class Denbun {
    * 当分の間, メッセージの表示を抑制したい場合などにこのフラグは使用できる.
    */
   public boolean isSuppress() {
-    return core.state().suppress;
-  }
-
-  /**
-   * このメッセージが過度に表示されているか否か.
-   *
-   * 短時間の間に複数回メッセージが表示されたかを判断したい場合などにこのフラグは使用できる.
-   */
-  public boolean isFrequency() {
-    return core.state().frequency.isHigh();
+    return core.state().frequency.isLimit();
   }
 
   /**
@@ -51,21 +42,17 @@ public class Denbun {
   }
 
   /**
-   * このメッセージが表示制限状態であるか.
-   *
-   * @param suppress 表示を制限する場合はtrue, それ以外はfalse.
+   * メッセージの表示回数を取得する
    */
-  public Denbun suppress(boolean suppress) {
-    core.suppress(suppress);
-    return this;
+  public int count() {
+    return core.state().count;
   }
 
   /**
-   *
-   * @return
+   * メッセージを抑制する
    */
-  public Denbun clearFrequency() {
-    core.frequency(Frequency.LOW);
+  public Denbun suppress(boolean suppress) {
+    core.frequency(suppress ? Frequency.MAX : Frequency.MIN);
     return this;
   }
 
@@ -90,11 +77,11 @@ public class Denbun {
 
   /**
    *
-   * @param interceptor
+   * @param adjuster
    * @return
    */
-  public Denbun frequencyInterceptor(@Nullable FrequencyInterceptor interceptor) {
-    core.frequencyInterceptor(interceptor);
+  public Denbun frequencyAdjuster(@Nullable FrequencyAdjuster adjuster) {
+    core.frequencyAdjuster(adjuster);
     return this;
   }
 

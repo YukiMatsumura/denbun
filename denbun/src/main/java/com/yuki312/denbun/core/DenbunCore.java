@@ -1,9 +1,9 @@
-package com.yuki312.denbun.state;
+package com.yuki312.denbun.core;
 
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.yuki312.denbun.FrequencyInterceptor;
+import com.yuki312.denbun.FrequencyAdjuster;
 import com.yuki312.denbun.time.Time;
 
 import static com.yuki312.denbun.Util.nonNull;
@@ -14,7 +14,7 @@ import static com.yuki312.denbun.Util.notBlank;
  */
 public class DenbunCore {
 
-  public static FrequencyInterceptor DEFAULT_FREQUENCY_ADAPTER = new FrequencyInterceptor() {
+  public static FrequencyAdjuster DEFAULT_FREQUENCY_ADAPTER = new FrequencyAdjuster() {
     @Override public Frequency increment(@NonNull State state) {
       // The default behavior is to always return the same value.
       return state.frequency;
@@ -26,7 +26,7 @@ public class DenbunCore {
 
   private State state;
 
-  private FrequencyInterceptor frequencyInterceptor = DEFAULT_FREQUENCY_ADAPTER;
+  private FrequencyAdjuster frequencyAdjuster = DEFAULT_FREQUENCY_ADAPTER;
 
   DenbunCore(@NonNull String id, @NonNull SharedPreferences preference) {
     notBlank(id);
@@ -42,33 +42,34 @@ public class DenbunCore {
   }
 
   public DenbunCore show() {
-    frequency(frequencyInterceptor.increment(state));
+    frequency(frequencyAdjuster.increment(state));
     recent(Time.now());
+    count(state.count + 1);
     return this;
   }
 
   public boolean showable() {
-    Frequency frequency = frequencyInterceptor.increment(state);
-    return !state.suppress && !frequency.isHigh();
-  }
-
-  public DenbunCore suppress(boolean suppressed) {
-    save(new State(suppressed, state.frequency, state.recent));
-    return this;
+    Frequency frequency = frequencyAdjuster.increment(state);
+    return !frequency.isLimit();
   }
 
   public DenbunCore frequency(Frequency frequency) {
-    save(new State(state.suppress, frequency, state.recent));
+    save(new State(frequency, state.recent, state.count));
     return this;
   }
 
   public DenbunCore recent(long epochMs) {
-    save(new State(state.suppress, state.frequency, epochMs));
+    save(new State(state.frequency, epochMs, state.count));
     return this;
   }
 
-  public DenbunCore frequencyInterceptor(@Nullable FrequencyInterceptor interceptor) {
-    frequencyInterceptor = (interceptor == null ? DEFAULT_FREQUENCY_ADAPTER : interceptor);
+  public DenbunCore count(int count) {
+    save(new State(state.frequency, state.recent, count));
+    return this;
+  }
+
+  public DenbunCore frequencyAdjuster(@Nullable FrequencyAdjuster interceptor) {
+    frequencyAdjuster = (interceptor == null ? DEFAULT_FREQUENCY_ADAPTER : interceptor);
     return this;
   }
 
