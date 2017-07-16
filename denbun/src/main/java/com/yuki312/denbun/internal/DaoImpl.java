@@ -32,4 +32,8 @@ public class DaoImpl implements Dao {
   @Override public boolean delete(@NonNull DenbunId id) {
     return new Record(id, pref).delete();
   }
+
+  @Override public boolean exist(@NonNull DenbunId id) {
+    return new Record(id, pref).exist();
+  }
 }

@@ -1,7 +1,6 @@
 package com.yuki312.denbun.denbunsample;
 
 import android.app.Application;
-import com.yuki312.denbun.BuildConfig;
 import com.yuki312.denbun.Dao;
 import com.yuki312.denbun.DenbunConfig;
 import com.yuki312.denbun.DenbunPool;
@@ -10,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
@@ -38,7 +36,7 @@ public class MockingTest {
     conf.daoProvider(pref -> (spyDao = spy(originalDaoProvider.create(pref))));
     DenbunPool.init(conf);
 
-    DenbunPool.take("id").shown();
+    DenbunPool.find("id").shown();
     verify(spyDao, times(1)).update(any());
   }
 }

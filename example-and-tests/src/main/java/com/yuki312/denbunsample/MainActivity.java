@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    Denbun msg = DenbunPool.take("id", state -> state.count <= 10 ? Frequency.MIN : Frequency.MAX);
+    Denbun msg = DenbunPool.find("id", state -> state.count <= 10 ? Frequency.MIN : Frequency.MAX);
     Toast t = Toast.makeText(this, "test:" + msg.count(), Toast.LENGTH_SHORT);
 
     if (msg.isShowable()) {

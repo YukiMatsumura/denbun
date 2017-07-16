@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,7 @@ public class DenbunPoolTest {
 
   @Test public void create() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.take("id");
+    Denbun msg = DenbunPool.find("id");
   }
 
   @Test(expected = NullPointerException.class) public void initNull() {
@@ -48,7 +47,7 @@ public class DenbunPoolTest {
   }
 
   @Test(expected = IllegalStateException.class) public void notInitialized() {
-    Denbun msg = DenbunPool.take("id");
+    Denbun msg = DenbunPool.find("id");
   }
 
   @Test public void initTwice() {
@@ -58,12 +57,12 @@ public class DenbunPoolTest {
 
   @Test(expected = NullPointerException.class) public void nullId() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.take(null);
+    Denbun msg = DenbunPool.find(null);
   }
 
   @Test(expected = IllegalArgumentException.class) public void blankId() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.take("");
+    Denbun msg = DenbunPool.find("");
   }
 
   @Test public void defaultPreference() {
@@ -72,7 +71,7 @@ public class DenbunPoolTest {
 
     assertThat(pref.getAll().isEmpty()).isTrue();
 
-    DenbunPool.take("id").shown();
+    DenbunPool.find("id").shown();
 
     assertThat(pref.getAll().isEmpty()).isFalse();
   }
@@ -84,7 +83,7 @@ public class DenbunPoolTest {
 
     assertThat(pref.getAll().isEmpty()).isTrue();
 
-    DenbunPool.take("id").shown();
+    DenbunPool.find("id").shown();
 
     assertThat(pref.getAll().isEmpty()).isFalse();
   }
@@ -92,8 +91,8 @@ public class DenbunPoolTest {
   @Test public void recycle() {
     DenbunPool.init(config);
 
-    Denbun msg1 = DenbunPool.take("id");
-    Denbun msg2 = DenbunPool.take("id");
+    Denbun msg1 = DenbunPool.find("id");
+    Denbun msg2 = DenbunPool.find("id");
 
     assertThat(msg1).isEqualTo(msg2);
   }
@@ -104,7 +103,7 @@ public class DenbunPoolTest {
 
     assertThat(pref.getAll().isEmpty()).isTrue();
 
-    Denbun msg = DenbunPool.take("id");
+    Denbun msg = DenbunPool.find("id");
     msg.shown();
 
     assertThat(pref.getAll().isEmpty()).isFalse();
@@ -114,8 +113,21 @@ public class DenbunPoolTest {
     assertThat(pref.getAll().isEmpty()).isTrue();
   }
 
+  @Test public void exist() {
+    SharedPreferences pref = config.preference();
+    DenbunPool.init(config);
+
+    assertThat(pref.getAll().isEmpty()).isTrue();
+
+    Denbun msg = DenbunPool.find("id");
+    msg.shown();
+
+    assertThat(pref.getAll().isEmpty()).isFalse();
+    assertThat(DenbunPool.exist("id")).isTrue();
+  }
+
   @Test public void forCoverage() throws NoSuchMethodException, IllegalAccessException,
-      InvocationTargetException, InstantiationException  {
+      InvocationTargetException, InstantiationException {
     Constructor<DenbunPool> constructor = DenbunPool.class.getDeclaredConstructor();
     assertThat(Modifier.isPrivate(constructor.getModifiers())).isTrue();
     constructor.setAccessible(true);

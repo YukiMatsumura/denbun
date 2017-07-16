@@ -70,4 +70,8 @@ public class FrequencyTest {
   @Test public void hash() {
     assertThat(Frequency.of(10).hashCode()).isEqualTo(10);
   }
+
+  @Test public void toStringTest() {
+    String s = Frequency.of(1).toString();
+  }
 }

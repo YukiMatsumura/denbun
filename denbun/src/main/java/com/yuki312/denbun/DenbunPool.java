@@ -9,6 +9,7 @@ import com.yuki312.denbun.internal.DenbunId;
 import java.util.HashMap;
 
 import static com.yuki312.denbun.Util.nonNull;
+import static com.yuki312.denbun.Util.notBlank;
 
 /**
  * Created by Yuki312 on 2017/07/13.
@@ -35,8 +36,7 @@ public class DenbunPool {
     DenbunPool.dao = config.daoProvider().create(config.preference());
   }
 
-  @VisibleForTesting
-  public static void reset() {
+  @VisibleForTesting public static void reset() {
     config = null;
     pool = null;
   }
@@ -45,11 +45,11 @@ public class DenbunPool {
     return config != null;
   }
 
-  @CheckResult public static Denbun take(@NonNull String id) {
-    return take(id, Denbun.DEFAULT_FREQUENCY_ADAPTER);
+  @CheckResult public static Denbun find(@NonNull String id) {
+    return find(id, Denbun.DEFAULT_FREQUENCY_ADAPTER);
   }
 
-  @CheckResult public static Denbun take(@NonNull String id, @NonNull FrequencyAdjuster adjuster) {
+  @CheckResult public static Denbun find(@NonNull String id, @NonNull FrequencyAdjuster adjuster) {
     nonNull(id, "Denbun ID can not be null");
     nonNull(adjuster, "FrequencyAdjuster can not be null.");
     checkInitialized();
@@ -80,6 +80,13 @@ public class DenbunPool {
     }
 
     dao.delete(denbunId);
+  }
+
+  public static boolean exist(@NonNull String id) {
+    notBlank(id);
+    checkInitialized();
+
+    return dao.exist(DenbunId.of(id));
   }
 
   private static void checkInitialized() {

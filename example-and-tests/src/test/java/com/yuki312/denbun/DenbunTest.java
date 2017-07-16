@@ -8,14 +8,12 @@ import com.yuki312.denbun.time.Time;
 import com.yuki312.denbun.time.TimeRule;
 import com.yuki312.denbun.time.TimeRule.Now;
 import java.util.Calendar;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
@@ -39,10 +37,6 @@ public class DenbunTest {
   private DenbunConfig config;
   private Dao dao;
 
-  private void preset(DenbunId id, int frequency, long recent, int count) {
-    dao.update(new State(id, Frequency.of(frequency), recent, count));
-  }
-
   @Before public void setup() {
     DenbunPool.reset();
     config = new DenbunConfig(app);
@@ -53,7 +47,7 @@ public class DenbunTest {
   @Test public void defaultState() {
     DenbunPool.init(config);
 
-    Denbun msg = DenbunPool.take("id");
+    Denbun msg = DenbunPool.find("id");
 
     assertThat(msg.id()).isEqualTo("id");
     assertThat(msg.isSuppress()).isFalse();
@@ -71,7 +65,7 @@ public class DenbunTest {
     });
     timeRule.advanceTimeTo(100L);
 
-    Denbun msg = DenbunPool.take("id", spy)
+    Denbun msg = DenbunPool.find("id", spy)
         .suppress(true)
         .shown();
 
@@ -87,7 +81,7 @@ public class DenbunTest {
         return history.frequency.plus(30);
       }
     });
-    Denbun msg = DenbunPool.take("id", spy)
+    Denbun msg = DenbunPool.find("id", spy)
         .suppress(false);
 
     msg.shown();  // frequency is now 30
@@ -117,7 +111,7 @@ public class DenbunTest {
 
   @Test public void resetFrequency() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.take("id")
+    Denbun msg = DenbunPool.find("id")
         .suppress(true);
     assertThat(msg.isSuppress()).isTrue();
 
@@ -148,7 +142,7 @@ public class DenbunTest {
       }
     };
 
-    Denbun msg = DenbunPool.take("id", freq);
+    Denbun msg = DenbunPool.find("id", freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 
@@ -172,7 +166,7 @@ public class DenbunTest {
       }
     };
 
-    Denbun msg = DenbunPool.take("id", freq);
+    Denbun msg = DenbunPool.find("id", freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 
@@ -192,7 +186,7 @@ public class DenbunTest {
       @Override public void call() {
       }
     });
-    Denbun msg = DenbunPool.take("id");
+    Denbun msg = DenbunPool.find("id");
 
     msg.shown(action);
 

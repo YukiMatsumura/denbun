@@ -51,4 +51,8 @@ public class Record {
     pref.edit().remove(Count.of(id)).apply();
     return true;
   }
+
+  public boolean exist() {
+    return pref.contains(Freq.of(id));
+  }
 }

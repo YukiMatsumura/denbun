@@ -34,4 +34,13 @@ public class State {
   public boolean isShowable() {
     return !frequency.isLimited();
   }
+
+  @Override public String toString() {
+    return "State{" +
+        "id=" + id +
+        ", frequency=" + frequency.value +
+        ", recent=" + recent +
+        ", count=" + count +
+        '}';
+  }
 }

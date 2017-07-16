@@ -18,6 +18,8 @@ public interface Dao {
 
   boolean delete(@NonNull DenbunId id);
 
+  boolean exist(@NonNull DenbunId id);
+
   @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
   interface Provider {
     Dao create(@NonNull SharedPreferences preference);
