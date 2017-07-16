@@ -3,7 +3,7 @@ package com.yuki312.denbun;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.internal.CoreProvider;
+import com.yuki312.denbun.internal.DaoProvider;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.yuki312.denbun.Util.nonNull;
@@ -16,14 +16,14 @@ public final class DenbunConfig {
   public static final String PREF_NAME = "com.yuki312.denbun.xml";
 
   private SharedPreferences preference;
-  private CoreProvider coreProvider;
+  private DaoProvider daoProvider;
 
   public DenbunConfig(@NonNull Application app) {
     nonNull(app);
 
     // default config
     this.preference = app.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-    this.coreProvider = new CoreProvider();
+    this.daoProvider = new DaoProvider();
   }
 
   public DenbunConfig preference(@NonNull SharedPreferences preferences) {
@@ -37,14 +37,14 @@ public final class DenbunConfig {
     return preference;
   }
 
-  DenbunConfig coreProvider(@NonNull CoreProvider factory) {
+  DenbunConfig coreProvider(@NonNull DaoProvider factory) {
     nonNull(factory);
 
-    this.coreProvider = factory;
+    this.daoProvider = factory;
     return this;
   }
 
-  CoreProvider coreProvider() {
-    return coreProvider;
+  DaoProvider coreProvider() {
+    return daoProvider;
   }
 }

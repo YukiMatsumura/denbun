@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.yuki312.denbun.internal.Frequency;
-import com.yuki312.denbun.internal.DenbunCore;
-import com.yuki312.denbun.internal.CoreProvider;
+import com.yuki312.denbun.internal.Dao;
+import com.yuki312.denbun.internal.DaoProvider;
 import com.yuki312.denbun.internal.State;
 import com.yuki312.denbun.time.Time;
 import com.yuki312.denbun.time.TimeRule;
@@ -42,21 +42,18 @@ public class MessageTest {
 
   private Application app = RuntimeEnvironment.application;
   private DenbunConfig config;
-  private DenbunCore core;
+  private Dao dao;
 
-  private void set(int frequency, long recent, int count) {
-    core.frequency(Frequency.of(frequency));
-    core.recent(recent);
-    core.count(count);
+  private void preset(String id, int frequency, long recent, int count) {
+    dao.update(new State(id, Frequency.of(frequency), recent, count));
   }
 
   @Before public void setup() {
     config = new DenbunConfig(app);
-    config.coreProvider(new CoreProvider() {
+    config.coreProvider(new DaoProvider() {
       @Override
-      public DenbunCore create(@NonNull String id, @NonNull SharedPreferences preference) {
-        core = super.create(id, preference);
-        return core;
+      public Dao create(@NonNull SharedPreferences preference) {
+        return (dao = super.create(preference));
       }
     });
   }
@@ -67,7 +64,7 @@ public class MessageTest {
 
   @Test public void create() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.get("id");
+    Denbun msg = DenbunPool.take("id");
   }
 
   @Test(expected = NullPointerException.class) public void initNull() {
@@ -79,7 +76,7 @@ public class MessageTest {
   }
 
   @Test(expected = IllegalStateException.class) public void notInitialized() {
-    Denbun msg = DenbunPool.get("id");
+    Denbun msg = DenbunPool.take("id");
   }
 
   @Test(expected = IllegalStateException.class) public void initTwice() {
@@ -87,21 +84,21 @@ public class MessageTest {
     DenbunPool.init(config);
   }
 
-  @Test(expected = IllegalArgumentException.class) public void nullId() {
+  @Test(expected = NullPointerException.class) public void nullId() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.get(null);
+    Denbun msg = DenbunPool.take(null);
   }
 
   @Test(expected = IllegalArgumentException.class) public void blankId() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.get("");
+    Denbun msg = DenbunPool.take("");
   }
 
   @Test public void readDefaultPreference() {
     DenbunPool.init(config);
+    preset("id", Frequency.MAX.value, 100L, 3);
 
-    Denbun msg = DenbunPool.get("id");
-    set(Frequency.MAX.value, 100L, 3);
+    Denbun msg = DenbunPool.take("id");
 
     assertThat(msg.id()).isEqualTo("id");
     assertThat(msg.isSuppress()).isTrue();
@@ -113,9 +110,9 @@ public class MessageTest {
   @Test public void readCustomPreference() {
     config.preference(app.getSharedPreferences("readCustomPreference.xml", Context.MODE_PRIVATE));
     DenbunPool.init(config);
+    preset("id", Frequency.MAX.value, 100L, 3);
 
-    Denbun msg = DenbunPool.get("id");
-    set(Frequency.MAX.value, 100L, 3);
+    Denbun msg = DenbunPool.take("id");
 
     assertThat(msg.isSuppress()).isTrue();
     assertThat(msg.recent()).isEqualTo(100L);
@@ -132,7 +129,7 @@ public class MessageTest {
   @Test public void defaultState() {
     DenbunPool.init(config);
 
-    Denbun msg = DenbunPool.get("id");
+    Denbun msg = DenbunPool.take("id");
 
     assertThat(msg.id()).isEqualTo("id");
     assertThat(msg.isSuppress()).isFalse();
@@ -150,8 +147,7 @@ public class MessageTest {
     });
     timeRule.advanceTimeTo(100L);
 
-    Denbun msg = DenbunPool.get("id")
-        .frequencyAdjuster(spy)
+    Denbun msg = DenbunPool.take("id", spy)
         .suppress(true)
         .shown();
 
@@ -167,38 +163,37 @@ public class MessageTest {
         return history.frequency.plus(30);
       }
     });
-    Denbun msg = DenbunPool.get("id")
-        .frequencyAdjuster(spy)
+    Denbun msg = DenbunPool.take("id", spy)
         .suppress(false);
 
     msg.shown();  // frequency is now 30
     verify(spy, times(1)).increment(any());
-    assertThat(core.state().frequency.value).isEqualTo(30);
+    assertThat(dao.find("id").frequency.value).isEqualTo(30);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
 
     msg.shown();  // frequency is now 60
     verify(spy, times(3)).increment(any());  // increment(..) was called by isShowable() and shown()
-    assertThat(core.state().frequency.value).isEqualTo(60);
+    assertThat(dao.find("id").frequency.value).isEqualTo(60);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
 
     msg.shown();  // frequency is now 90
     verify(spy, times(5)).increment(any());
-    assertThat(core.state().frequency.value).isEqualTo(90);
+    assertThat(dao.find("id").frequency.value).isEqualTo(90);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isFalse();
 
     msg.shown();  // frequency is now 100(high)
     verify(spy, times(7)).increment(any());
-    assertThat(core.state().frequency.value).isEqualTo(Frequency.MAX.value);
+    assertThat(dao.find("id").frequency.value).isEqualTo(Frequency.MAX.value);
     assertThat(msg.isSuppress()).isTrue();
     assertThat(msg.isShowable()).isFalse();
   }
 
   @Test public void resetFrequency() {
     DenbunPool.init(config);
-    Denbun msg = DenbunPool.get("id")
+    Denbun msg = DenbunPool.take("id")
         .suppress(true);
     assertThat(msg.isSuppress()).isTrue();
 
@@ -229,8 +224,7 @@ public class MessageTest {
       }
     };
 
-    Denbun msg = DenbunPool.get("id")
-        .frequencyAdjuster(freq);
+    Denbun msg = DenbunPool.take("id", freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 
@@ -254,8 +248,7 @@ public class MessageTest {
       }
     };
 
-    Denbun msg = DenbunPool.get("id")
-        .frequencyAdjuster(freq);
+    Denbun msg = DenbunPool.take("id", freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 
@@ -266,5 +259,19 @@ public class MessageTest {
     msg.shown();
 
     assertThat(msg.isShowable()).isFalse();
+  }
+
+  @Test public void showingAction() {
+    DenbunPool.init(config);
+
+    Denbun.Action action = spy(new Denbun.Action() {
+      @Override public void call() {
+      }
+    });
+    Denbun msg = DenbunPool.take("id");
+
+    msg.shown(action);
+
+    verify(action, times(1)).call();
   }
 }

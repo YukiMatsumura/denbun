@@ -4,15 +4,14 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
 import static com.yuki312.denbun.Util.nonNull;
-import static com.yuki312.denbun.Util.notBlank;
-import static com.yuki312.denbun.internal.Pref.Key.Count;
-import static com.yuki312.denbun.internal.Pref.Key.Freq;
-import static com.yuki312.denbun.internal.Pref.Key.Recent;
+import static com.yuki312.denbun.internal.Record.Key.Count;
+import static com.yuki312.denbun.internal.Record.Key.Freq;
+import static com.yuki312.denbun.internal.Record.Key.Recent;
 
 /**
  * Created by Yuki312 on 2017/07/01.
  */
-class Pref {
+class Record {
 
   enum Key {
     Freq("_freq"), Recent("_recent"), Count("_cnt");
@@ -35,19 +34,21 @@ class Pref {
   private final String id;
   private final SharedPreferences pref;
 
-  public Pref(@NonNull String id, @NonNull SharedPreferences pref) {
-    this.id = notBlank(id);
+  public Record(@NonNull String id, @NonNull SharedPreferences pref) {
+    this.id = nonNull(id);
     this.pref = nonNull(pref);
   }
 
-  public void save(State state) {
+  public State save(@NonNull State state) {
     pref.edit().putInt(Freq.of(id), state.frequency.value).apply();
     pref.edit().putLong(Recent.of(id), state.recent).apply();
     pref.edit().putInt(Count.of(id), state.count).apply();
+    return load();
   }
 
   public State load() {
     return new State(
+        id,
         Frequency.of(pref.getInt(Freq.of(id), FREQ_DEFAULT)),
         pref.getLong(Recent.of(id), RECENT_DEFAULT),
         pref.getInt(Count.of(id), COUNT_DEFAULT));

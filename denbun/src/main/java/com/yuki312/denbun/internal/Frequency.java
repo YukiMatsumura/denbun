@@ -45,7 +45,7 @@ public class Frequency {
     return Frequency.of(this.value + value);
   }
 
-  public boolean isLimit() {
+  public boolean isLimited() {
     return this.value == UPPER;
   }
 

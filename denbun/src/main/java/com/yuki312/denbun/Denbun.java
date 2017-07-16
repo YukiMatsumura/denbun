@@ -1,9 +1,10 @@
 package com.yuki312.denbun;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import com.yuki312.denbun.internal.DenbunCore;
+import com.yuki312.denbun.internal.Dao;
 import com.yuki312.denbun.internal.Frequency;
+import com.yuki312.denbun.internal.State;
+import com.yuki312.denbun.time.Time;
 
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
@@ -13,12 +14,28 @@ import static com.yuki312.denbun.Util.notBlank;
  */
 public class Denbun {
 
-  private final String id;
-  private final DenbunCore core;
+  public interface Action {
+    void call();
+  }
 
-  private Denbun(@NonNull String id, @NonNull DenbunCore core) {
+  public static FrequencyAdjuster DEFAULT_FREQUENCY_ADAPTER = new FrequencyAdjuster() {
+    @Override public Frequency increment(@NonNull State state) {
+      // The default behavior is to always return the same value.
+      return state.frequency;
+    }
+  };
+
+  private final Dao dao;
+  private final String id;
+  private final FrequencyAdjuster adjuster;
+
+  private State state;
+
+  private Denbun(@NonNull String id, @NonNull FrequencyAdjuster adjuster, @NonNull Dao dao) {
     this.id = nonNull(id);
-    this.core = nonNull(core);
+    this.adjuster = nonNull(adjuster);
+    this.dao = nonNull(dao);
+    this.state = dao.find(id);
   }
 
   @NonNull public String id() {
@@ -31,28 +48,29 @@ public class Denbun {
    * 当分の間, メッセージの表示を抑制したい場合などにこのフラグは使用できる.
    */
   public boolean isSuppress() {
-    return core.state().frequency.isLimit();
+    return state.frequency.isLimited();
   }
 
   /**
    * このメッセージが最後に表示された日時.
    */
   public long recent() {
-    return core.state().recent;
+    return state.recent;
   }
 
   /**
    * メッセージの表示回数を取得する
    */
   public int count() {
-    return core.state().count;
+    return state.count;
   }
 
   /**
    * メッセージを抑制する
    */
   public Denbun suppress(boolean suppress) {
-    core.frequency(suppress ? Frequency.MAX : Frequency.MIN);
+    Frequency freq = (suppress ? Frequency.MAX : Frequency.MIN);
+    updateState(new State(state.id, freq, state.recent, state.count));
     return this;
   }
 
@@ -64,25 +82,29 @@ public class Denbun {
    * @return 表示可能であればtrue, それ以外はfalse.
    */
   public boolean isShowable() {
-    return core.showable();
+    return new State(state.id,
+        adjuster.increment(state), state.recent, state.count).isShowable();
   }
 
   /**
    * メッセージを表示したことを通知する.
    */
   public Denbun shown() {
-    core.show();
+    updateState(new State(
+        state.id,
+        adjuster.increment(state),
+        Time.now(),
+        state.count + 1));
     return this;
   }
 
-  /**
-   *
-   * @param adjuster
-   * @return
-   */
-  public Denbun frequencyAdjuster(@Nullable FrequencyAdjuster adjuster) {
-    core.frequencyAdjuster(adjuster);
-    return this;
+  public Denbun shown(Action action) {
+    action.call();
+    return shown();
+  }
+
+  private void updateState(State newState) {
+    this.state = dao.update(newState);
   }
 
   /*
@@ -91,21 +113,28 @@ public class Denbun {
   static class Builder {
 
     private final String id;
-    private DenbunCore core;
+    private FrequencyAdjuster adjuster;
+    private Dao core;
 
     Builder(@NonNull String id) {
       this.id = notBlank(id);
     }
 
-    Builder history(@NonNull DenbunCore core) {
+    Builder dao(@NonNull Dao core) {
       this.core = nonNull(core);
+      return this;
+    }
+
+    Builder adjuster(@NonNull FrequencyAdjuster adjuster) {
+      this.adjuster = nonNull(adjuster);
       return this;
     }
 
     Denbun build() {
       notBlank(id);
+      nonNull(adjuster);
       nonNull(core);
-      return new Denbun(id, core);
+      return new Denbun(id, adjuster, core);
     }
   }
 }
