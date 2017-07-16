@@ -20,25 +20,27 @@ For example...
 Denbun records the display date and number of displaying.  
 And it helps to calculate the best timing to display next.  
 
-### How to use
+
+## Usage
 
 Following code will record the message state.  
 
 ```
-Denbun msg = DenbunPool.get(ID)
-
-if (isShowable())
-  msg.shown()
+Denbun msg = DenbunPool.take(ID)
+msg.shown(() -> dialog.show())
 ```
 
-You can adjust the frequency using this records.
+You can adjust the frequency using this state.
 
 ```
-adj = (history) -> {
-  return history.count == 0 ? Frequency.MIN : Frequency.MAX;
-}
-
-DenbunPool.get(ID).frequencyAdjuster(adj)
-  .isShowable() ...
+Denbun msg = DenbunPool.take(ID,
+    state -> state.count == 0 ? Frequency.MIN : Frequency.MAX);
+if (msg.isShowable()) { ... }
 ```
 
+Or suppress messages.
+
+```
+Denbun msg = DenbunPool.take(ID)
+msg.suppress(true);
+```
