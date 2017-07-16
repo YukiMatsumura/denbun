@@ -8,12 +8,18 @@ import com.yuki312.denbun.DenbunPool;
 /**
  * Created by Yuki312 on 2017/07/08.
  */
-
 public class App extends Application {
   @Override public void onCreate() {
     super.onCreate();
-    Stetho.initializeWithDefaults(this);
+    initStetho();
+    initDenbun();
+  }
 
+  protected void initStetho() {
+    Stetho.initializeWithDefaults(this);
+  }
+
+  protected void initDenbun() {
     DenbunPool.init(new DenbunConfig(this));
   }
 }

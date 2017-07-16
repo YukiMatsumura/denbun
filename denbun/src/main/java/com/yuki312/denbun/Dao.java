@@ -16,6 +16,8 @@ public interface Dao {
 
   @NonNull State update(@NonNull State state);
 
+  boolean delete(@NonNull DenbunId id);
+
   @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
   interface Provider {
     Dao create(@NonNull SharedPreferences preference);

@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Yuki312 on 2017/07/16.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class FrequencyTest {
 
   private final int MIN = 0;

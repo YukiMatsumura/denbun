@@ -7,6 +7,9 @@ import com.yuki312.denbun.Denbun;
 import com.yuki312.denbun.DenbunPool;
 import com.yuki312.denbun.Frequency;
 
+/**
+ * Created by Yuki312 on 2017/07/08.
+ */
 public class MainActivity extends AppCompatActivity {
 
   @Override
@@ -14,10 +17,11 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    Denbun msg1 = DenbunPool.take("id");
-    msg1.shown(() -> Toast.makeText(this, "TEST", Toast.LENGTH_SHORT).show());
+    Denbun msg = DenbunPool.take("id", state -> state.count <= 10 ? Frequency.MIN : Frequency.MAX);
+    Toast t = Toast.makeText(this, "test:" + msg.count(), Toast.LENGTH_SHORT);
 
-    Denbun msg2 = DenbunPool.take("id2",
-        state -> state.count == 0 ? Frequency.MAX : Frequency.MIN);
+    if (msg.isShowable()) {
+      msg.shown(t::show);
+    }
   }
 }

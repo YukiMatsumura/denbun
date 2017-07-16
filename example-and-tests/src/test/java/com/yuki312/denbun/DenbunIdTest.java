@@ -2,6 +2,7 @@ package com.yuki312.denbun;
 
 import com.yuki312.denbun.internal.DenbunId;
 import com.yuki312.denbun.internal.PreferenceKey;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -13,10 +14,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Yuki312 on 2017/07/16.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class DenbunIdTest {
 
   private final String RESERVED_WORD = PreferenceKey.reservedWord();
+
+  @Before public void setup() {
+    DenbunPool.reset();
+  }
 
   @Test(expected = IllegalArgumentException.class) public void reservedId1() {
     DenbunId.of(RESERVED_WORD);

@@ -3,6 +3,7 @@ package com.yuki312.denbun;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 import com.yuki312.denbun.adjuster.FrequencyAdjuster;
 import com.yuki312.denbun.internal.DenbunId;
 import java.util.HashMap;
@@ -25,8 +26,8 @@ public class DenbunPool {
     nonNull(config, "DenbunConfig can not be null");
 
     if (initialized()) {
-      throw new IllegalStateException(
-          "Denbun is already initialized. Denbun.init(config) calls are allowed only once.");
+      Log.w("DenbunPool", "Denbun is already initialized.");
+      return;
     }
 
     DenbunPool.config = config;
@@ -34,7 +35,8 @@ public class DenbunPool {
     DenbunPool.dao = config.daoProvider().create(config.preference());
   }
 
-  @VisibleForTesting static void reset() {
+  @VisibleForTesting
+  public static void reset() {
     config = null;
     pool = null;
   }
@@ -50,11 +52,7 @@ public class DenbunPool {
   @CheckResult public static Denbun take(@NonNull String id, @NonNull FrequencyAdjuster adjuster) {
     nonNull(id, "Denbun ID can not be null");
     nonNull(adjuster, "FrequencyAdjuster can not be null.");
-
-    if (!initialized()) {
-      throw new IllegalStateException(
-          "Denbun is not initialized. Call Denbun.init(config) in Application.onCreate().");
-    }
+    checkInitialized();
 
     DenbunId denbunId = DenbunId.of(id);
 
@@ -70,5 +68,24 @@ public class DenbunPool {
     pool.put(denbunId, msg);
 
     return msg;
+  }
+
+  public static void remove(@NonNull String id) {
+    nonNull(id, "Denbun ID can not be null");
+    checkInitialized();
+
+    DenbunId denbunId = DenbunId.of(id);
+    if (pool.containsKey(denbunId)) {
+      pool.remove(denbunId);
+    }
+
+    dao.delete(denbunId);
+  }
+
+  private static void checkInitialized() {
+    if (!initialized()) {
+      throw new IllegalStateException(
+          "Denbun is not initialized. Call Denbun.init(config) in Application.onCreate().");
+    }
   }
 }

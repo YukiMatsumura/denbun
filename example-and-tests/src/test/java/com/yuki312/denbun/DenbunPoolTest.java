@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Yuki312 on 2017/07/16.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class DenbunPoolTest {
 
   private Application app = RuntimeEnvironment.application;
@@ -52,7 +51,7 @@ public class DenbunPoolTest {
     Denbun msg = DenbunPool.take("id");
   }
 
-  @Test(expected = IllegalStateException.class) public void initTwice() {
+  @Test public void initTwice() {
     DenbunPool.init(config);
     DenbunPool.init(config);
   }
@@ -97,6 +96,22 @@ public class DenbunPoolTest {
     Denbun msg2 = DenbunPool.take("id");
 
     assertThat(msg1).isEqualTo(msg2);
+  }
+
+  @Test public void removeId() {
+    SharedPreferences pref = config.preference();
+    DenbunPool.init(config);
+
+    assertThat(pref.getAll().isEmpty()).isTrue();
+
+    Denbun msg = DenbunPool.take("id");
+    msg.shown();
+
+    assertThat(pref.getAll().isEmpty()).isFalse();
+
+    DenbunPool.remove("id");
+
+    assertThat(pref.getAll().isEmpty()).isTrue();
   }
 
   @Test public void forCoverage() throws NoSuchMethodException, IllegalAccessException,

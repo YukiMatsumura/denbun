@@ -44,4 +44,11 @@ public class Record {
         pref.getLong(Recent.of(id), RECENT_DEFAULT),
         pref.getInt(Count.of(id), COUNT_DEFAULT));
   }
+
+  public boolean delete() {
+    pref.edit().remove(Freq.of(id)).apply();
+    pref.edit().remove(Recent.of(id)).apply();
+    pref.edit().remove(Count.of(id)).apply();
+    return true;
+  }
 }

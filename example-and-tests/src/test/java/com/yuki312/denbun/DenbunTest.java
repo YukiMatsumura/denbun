@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
  * Created by Yuki312 on 2017/07/08.
  */
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class DenbunTest {
 
   @Rule public TimeRule timeRule = new TimeRule();

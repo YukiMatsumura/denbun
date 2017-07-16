@@ -28,4 +28,8 @@ public class DaoImpl implements Dao {
   @Override @NonNull public State update(@NonNull State state) {
     return new Record(state.id, pref).save(state);
   }
+
+  @Override public boolean delete(@NonNull DenbunId id) {
+    return new Record(id, pref).delete();
+  }
 }
