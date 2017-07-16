@@ -10,12 +10,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Yuki312 on 2017/07/17.
  */
-public class CooldownAdjuster implements FrequencyAdjuster {
+public class CoolDownAdjuster implements FrequencyAdjuster {
 
   private final float rate;
   private final long interval;
 
-  public CooldownAdjuster(@FloatRange(from = 0.0, to = 1.0) float increaseRate,
+  public CoolDownAdjuster(@FloatRange(from = 0.0, to = 1.0) float increaseRate,
       long interval, TimeUnit unit) {
     this.rate = increaseRate;
     this.interval = TimeUnit.MILLISECONDS.convert(interval, unit);

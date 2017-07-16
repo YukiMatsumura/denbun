@@ -1,14 +1,13 @@
 
 
-# ⚡ Denbun
+# ⚡Denbun
 
-
-Denbun("電文") in Japanese is called "Message" in English.  
 Many applications are display messages using Dialogs, Toasts and Snackbars.  
 However, that messages may seem intrusive and may be tired.  
 
 Denbun is a lightweight library.  
-This library supports to suppress messages and adjust frequency.  
+This library supports to suppress messages and adjust frequency.
+Denbun("電文") in Japanese is called "Message" in English.
 
 For example...
 
@@ -50,4 +49,25 @@ msg.suppress(true);
 
 There are several adjusters provided in this library.
 
- -
+ - CountAdjuster ... For N shots dialogs.
+ - IntervalAdjuster ... For periodic dialogs.
+ - CoolDownAdjuster ... For periodic and N shots dialogs.
+
+
+## LICENSE
+
+```
+Copyright 2017 Matsumura Yuki.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```

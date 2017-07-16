@@ -7,8 +7,7 @@ import com.yuki312.denbun.DenbunConfig;
 import com.yuki312.denbun.DenbunPool;
 import com.yuki312.denbun.Frequency;
 import com.yuki312.denbun.State;
-import com.yuki312.denbun.adjuster.CooldownAdjuster;
-import com.yuki312.denbun.adjuster.IntervalAdjuster;
+import com.yuki312.denbun.adjuster.CoolDownAdjuster;
 import com.yuki312.denbun.internal.DenbunId;
 import com.yuki312.denbun.time.TimeRule;
 import com.yuki312.denbun.time.TimeRule.Now;
@@ -26,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by Yuki312 on 2017/07/17.
  */
 @RunWith(RobolectricTestRunner.class)
-public class CooldownAdjusterTest {
+public class CoolDownAdjusterTest {
 
   @Rule public TimeRule timeRule = new TimeRule();
 
@@ -49,7 +48,7 @@ public class CooldownAdjusterTest {
     timeRule.advanceTimeTo(100L);
     preset("id", Frequency.MAX.value, 100L, 1);
 
-    Denbun msg = DenbunPool.find("id", new CooldownAdjuster(1f / 3f, 100L, TimeUnit.MILLISECONDS));
+    Denbun msg = DenbunPool.find("id", new CoolDownAdjuster(1f / 3f, 100L, TimeUnit.MILLISECONDS));
     assertThat(msg.isShowable()).isFalse();
 
     timeRule.advanceTimeTo(199L);
