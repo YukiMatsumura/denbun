@@ -2,12 +2,12 @@ package com.yuki312.denbun;
 
 import android.support.annotation.NonNull;
 import com.yuki312.denbun.internal.Dao;
+import com.yuki312.denbun.internal.DenbunId;
 import com.yuki312.denbun.internal.Frequency;
 import com.yuki312.denbun.internal.State;
 import com.yuki312.denbun.time.Time;
 
 import static com.yuki312.denbun.Util.nonNull;
-import static com.yuki312.denbun.Util.notBlank;
 
 /**
  * Created by Yuki312 on 2017/07/03.
@@ -26,12 +26,12 @@ public class Denbun {
   };
 
   private final Dao dao;
-  private final String id;
+  private final DenbunId id;
   private final FrequencyAdjuster adjuster;
 
   private State state;
 
-  private Denbun(@NonNull String id, @NonNull FrequencyAdjuster adjuster, @NonNull Dao dao) {
+  private Denbun(@NonNull DenbunId id, @NonNull FrequencyAdjuster adjuster, @NonNull Dao dao) {
     this.id = nonNull(id);
     this.adjuster = nonNull(adjuster);
     this.dao = nonNull(dao);
@@ -39,7 +39,7 @@ public class Denbun {
   }
 
   @NonNull public String id() {
-    return id;
+    return id.value;
   }
 
   /**
@@ -112,16 +112,16 @@ public class Denbun {
    */
   static class Builder {
 
-    private final String id;
+    private final DenbunId id;
     private FrequencyAdjuster adjuster;
-    private Dao core;
+    private Dao dao;
 
     Builder(@NonNull String id) {
-      this.id = notBlank(id);
+      this.id = DenbunId.of(id);
     }
 
-    Builder dao(@NonNull Dao core) {
-      this.core = nonNull(core);
+    Builder dao(@NonNull Dao dao) {
+      this.dao = nonNull(dao);
       return this;
     }
 
@@ -131,10 +131,10 @@ public class Denbun {
     }
 
     Denbun build() {
-      notBlank(id);
-      nonNull(adjuster);
-      nonNull(core);
-      return new Denbun(id, adjuster, core);
+      nonNull(id, "Denbun ID can not be null");
+      nonNull(adjuster, "FrequencyAdjuster can not be null");
+      nonNull(dao, "DenbunPool has no DAO. initialized DenbunPool?");
+      return new Denbun(id, adjuster, dao);
     }
   }
 }

@@ -37,14 +37,14 @@ public final class DenbunConfig {
     return preference;
   }
 
-  DenbunConfig coreProvider(@NonNull DaoProvider factory) {
+  DenbunConfig daoProvider(@NonNull DaoProvider factory) {
     nonNull(factory);
 
     this.daoProvider = factory;
     return this;
   }
 
-  DaoProvider coreProvider() {
+  DaoProvider daoProvider() {
     return daoProvider;
   }
 }

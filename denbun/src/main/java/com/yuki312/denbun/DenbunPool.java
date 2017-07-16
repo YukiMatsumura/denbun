@@ -27,7 +27,7 @@ public class DenbunPool {
 
     DenbunPool.config = config;
     DenbunPool.pool = new HashMap<>();
-    DenbunPool.dao = config.coreProvider().create(config.preference());
+    DenbunPool.dao = config.daoProvider().create(config.preference());
   }
 
   @VisibleForTesting static void reset() {

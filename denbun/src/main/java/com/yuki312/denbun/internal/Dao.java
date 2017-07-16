@@ -16,7 +16,7 @@ public class Dao {
     pref = nonNull(preference);
   }
 
-  @NonNull public State find(@NonNull String id) {
+  @NonNull public State find(@NonNull DenbunId id) {
     return new Record(id, pref).load();
   }
 

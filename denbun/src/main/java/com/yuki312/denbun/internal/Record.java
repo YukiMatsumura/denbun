@@ -13,8 +13,12 @@ import static com.yuki312.denbun.internal.Record.Key.Recent;
  */
 class Record {
 
+  public static final String RESERVED_WORD = "__dnbn_";
+
   enum Key {
-    Freq("_freq"), Recent("_recent"), Count("_cnt");
+    Freq(RESERVED_WORD + "freq"),
+    Recent(RESERVED_WORD + "recent"),
+    Count(RESERVED_WORD + "cnt");
 
     public final String SUFFIX;
 
@@ -22,8 +26,8 @@ class Record {
       this.SUFFIX = suffix;
     }
 
-    public String of(@NonNull String baseKey) {
-      return baseKey + SUFFIX;
+    public String of(@NonNull DenbunId id) {
+      return id.value + SUFFIX;
     }
   }
 
@@ -31,10 +35,10 @@ class Record {
   private static final long RECENT_DEFAULT = 0L;
   private static final int COUNT_DEFAULT = 0;
 
-  private final String id;
+  private final DenbunId id;
   private final SharedPreferences pref;
 
-  public Record(@NonNull String id, @NonNull SharedPreferences pref) {
+  public Record(@NonNull DenbunId id, @NonNull SharedPreferences pref) {
     this.id = nonNull(id);
     this.pref = nonNull(pref);
   }
