@@ -2,34 +2,21 @@ package com.yuki312.denbun.internal;
 
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
+import com.yuki312.denbun.Frequency;
+import com.yuki312.denbun.State;
 
+import static android.support.annotation.RestrictTo.Scope.LIBRARY;
 import static com.yuki312.denbun.Util.nonNull;
-import static com.yuki312.denbun.internal.Record.Key.Count;
-import static com.yuki312.denbun.internal.Record.Key.Freq;
-import static com.yuki312.denbun.internal.Record.Key.Recent;
+import static com.yuki312.denbun.internal.PreferenceKey.Count;
+import static com.yuki312.denbun.internal.PreferenceKey.Freq;
+import static com.yuki312.denbun.internal.PreferenceKey.Recent;
 
 /**
  * Created by Yuki312 on 2017/07/01.
  */
-class Record {
-
-  public static final String RESERVED_WORD = "__dnbn_";
-
-  enum Key {
-    Freq(RESERVED_WORD + "freq"),
-    Recent(RESERVED_WORD + "recent"),
-    Count(RESERVED_WORD + "cnt");
-
-    public final String SUFFIX;
-
-    Key(String suffix) {
-      this.SUFFIX = suffix;
-    }
-
-    public String of(@NonNull DenbunId id) {
-      return id.value + SUFFIX;
-    }
-  }
+@RestrictTo(LIBRARY)
+public class Record {
 
   private static final int FREQ_DEFAULT = 0;
   private static final long RECENT_DEFAULT = 0L;

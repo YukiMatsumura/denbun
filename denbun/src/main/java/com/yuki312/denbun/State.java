@@ -1,6 +1,8 @@
-package com.yuki312.denbun.internal;
+package com.yuki312.denbun;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
+import com.yuki312.denbun.internal.DenbunId;
 
 import static com.yuki312.denbun.Util.nonNull;
 
@@ -19,6 +21,10 @@ public class State {
     this.frequency = nonNull(frequency);
     this.recent = recent;
     this.count = count;
+  }
+
+  @CheckResult public State frequency(Frequency frequency) {
+    return new State(id, frequency, recent, count);
   }
 
   public boolean isSuppress() {

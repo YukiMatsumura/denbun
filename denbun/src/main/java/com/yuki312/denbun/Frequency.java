@@ -1,4 +1,4 @@
-package com.yuki312.denbun.internal;
+package com.yuki312.denbun;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.IntRange;
@@ -29,7 +29,7 @@ public class Frequency {
 
   @CheckResult public Frequency plus(@Nullable Frequency frequency) {
     if (frequency == null) return this;
-    return Frequency.of(this.value + frequency.value);
+    return plus(frequency.value);
   }
 
   @CheckResult public Frequency plus(int value) {
@@ -38,11 +38,11 @@ public class Frequency {
 
   @CheckResult public Frequency minus(@Nullable Frequency frequency) {
     if (frequency == null) return this;
-    return Frequency.of(this.value - frequency.value);
+    return minus(frequency.value);
   }
 
   @CheckResult public Frequency minus(int value) {
-    return Frequency.of(this.value + value);
+    return Frequency.of(this.value - value);
   }
 
   public boolean isLimited() {

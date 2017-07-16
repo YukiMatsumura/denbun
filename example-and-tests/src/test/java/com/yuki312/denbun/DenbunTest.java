@@ -1,13 +1,9 @@
 package com.yuki312.denbun;
 
 import android.app.Application;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.internal.Dao;
-import com.yuki312.denbun.internal.DaoProvider;
+import com.yuki312.denbun.adjuster.FrequencyAdjuster;
 import com.yuki312.denbun.internal.DenbunId;
-import com.yuki312.denbun.internal.Frequency;
-import com.yuki312.denbun.internal.State;
 import com.yuki312.denbun.time.Time;
 import com.yuki312.denbun.time.TimeRule;
 import com.yuki312.denbun.time.TimeRule.Now;
@@ -36,7 +32,7 @@ import static org.mockito.Mockito.verify;
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
-public class MessageTest {
+public class DenbunTest {
 
   @Rule public TimeRule timeRule = new TimeRule();
 
@@ -49,62 +45,10 @@ public class MessageTest {
   }
 
   @Before public void setup() {
-    config = new DenbunConfig(app);
-    config.daoProvider(new DaoProvider() {
-      @Override
-      public Dao create(@NonNull SharedPreferences preference) {
-        return (dao = super.create(preference));
-      }
-    });
-  }
-
-  @After public void teardown() {
     DenbunPool.reset();
-  }
-
-  @Test public void create() {
-    DenbunPool.init(config);
-    Denbun msg = DenbunPool.take("id");
-  }
-
-  @Test(expected = NullPointerException.class) public void initNull() {
-    DenbunPool.init(null);
-  }
-
-  @Test(expected = NullPointerException.class) public void nullPreference() {
-    config.preference(null);
-  }
-
-  @Test(expected = IllegalStateException.class) public void notInitialized() {
-    Denbun msg = DenbunPool.take("id");
-  }
-
-  @Test(expected = IllegalStateException.class) public void initTwice() {
-    DenbunPool.init(config);
-    DenbunPool.init(config);
-  }
-
-  @Test(expected = NullPointerException.class) public void nullId() {
-    DenbunPool.init(config);
-    Denbun msg = DenbunPool.take(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class) public void blankId() {
-    DenbunPool.init(config);
-    Denbun msg = DenbunPool.take("");
-  }
-
-  @Test public void readDefaultPreference() {
-    DenbunPool.init(config);
-    preset(DenbunId.of("id"), Frequency.MAX.value, 100L, 3);
-
-    Denbun msg = DenbunPool.take("id");
-
-    assertThat(msg.id()).isEqualTo("id");
-    assertThat(msg.isSuppress()).isTrue();
-    assertThat(msg.recent()).isEqualTo(100L);
-    assertThat(msg.count()).isEqualTo(3);
-    assertThat(msg.isShowable()).isFalse();
+    config = new DenbunConfig(app);
+    Dao.Provider defaultDaoProvider = config.daoProvider();
+    config.daoProvider(preference -> (dao = defaultDaoProvider.create(preference)));
   }
 
   @Test public void defaultState() {

@@ -3,7 +3,8 @@ package com.yuki312.denbun;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
-import com.yuki312.denbun.internal.Dao;
+import com.yuki312.denbun.adjuster.FrequencyAdjuster;
+import com.yuki312.denbun.internal.DenbunId;
 import java.util.HashMap;
 
 import static com.yuki312.denbun.Util.nonNull;
@@ -13,8 +14,11 @@ import static com.yuki312.denbun.Util.nonNull;
  */
 public class DenbunPool {
 
+  private DenbunPool() {
+  }
+
   private static DenbunConfig config;
-  private static HashMap<String, Denbun> pool;
+  private static HashMap<DenbunId, Denbun> pool;
   private static Dao dao;
 
   public static void init(@NonNull DenbunConfig config) {
@@ -44,7 +48,7 @@ public class DenbunPool {
   }
 
   @CheckResult public static Denbun take(@NonNull String id, @NonNull FrequencyAdjuster adjuster) {
-    nonNull(id, "Message ID can not be null");
+    nonNull(id, "Denbun ID can not be null");
     nonNull(adjuster, "FrequencyAdjuster can not be null.");
 
     if (!initialized()) {
@@ -52,16 +56,18 @@ public class DenbunPool {
           "Denbun is not initialized. Call Denbun.init(config) in Application.onCreate().");
     }
 
-    if (pool.containsKey(id)) {
-      return pool.get(id);
+    DenbunId denbunId = DenbunId.of(id);
+
+    if (pool.containsKey(denbunId)) {
+      return pool.get(denbunId);
     }
 
     Denbun msg =
-        new Denbun.Builder(id)
+        new Denbun.Builder(DenbunId.of(id))
             .dao(dao)
             .adjuster(adjuster)
             .build();
-    pool.put(id, msg);
+    pool.put(denbunId, msg);
 
     return msg;
   }

@@ -4,16 +4,17 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.yuki312.denbun.BuildConfig;
+import com.yuki312.denbun.Frequency;
+import com.yuki312.denbun.State;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import static com.yuki312.denbun.internal.Record.Key.Count;
-import static com.yuki312.denbun.internal.Record.Key.Freq;
-import static com.yuki312.denbun.internal.Record.Key.Recent;
-import static com.yuki312.denbun.internal.Record.RESERVED_WORD;
+import static com.yuki312.denbun.internal.PreferenceKey.Count;
+import static com.yuki312.denbun.internal.PreferenceKey.Freq;
+import static com.yuki312.denbun.internal.PreferenceKey.Recent;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -25,26 +26,15 @@ public class RecordTest {
 
   private Application app = RuntimeEnvironment.application;
 
-  @Test(expected = IllegalArgumentException.class) public void reservedId1() {
-    DenbunId.of(RESERVED_WORD);
-  }
-
-  @Test(expected = IllegalArgumentException.class) public void reservedId2() {
-    DenbunId.of("a" + RESERVED_WORD);
-  }
-
-  @Test(expected = IllegalArgumentException.class) public void reservedId3() {
-    DenbunId.of(RESERVED_WORD + "a");
-  }
-
-  @Test public void nonReservedId() {
-    DenbunId.of(RESERVED_WORD.substring(1));
-    DenbunId.of("a" + RESERVED_WORD.substring(1));
-    DenbunId.of(RESERVED_WORD.substring(1) + "a");
+  @Test public void preferenceKeyFormat() {
+    for (PreferenceKey k : PreferenceKey.values()) {
+      assertThat(k.SUFFIX.startsWith(PreferenceKey.reservedWord())).isTrue();
+    }
   }
 
   @Test public void readCustomPreference() {
-    Dao dao = new Dao(app.getSharedPreferences("readCustomPreference.xml", Context.MODE_PRIVATE));
+    DaoImpl dao =
+        new DaoImpl(app.getSharedPreferences("readCustomPreference.xml", Context.MODE_PRIVATE));
     DenbunId id = DenbunId.of("id");
     State state = dao.find(id);
 

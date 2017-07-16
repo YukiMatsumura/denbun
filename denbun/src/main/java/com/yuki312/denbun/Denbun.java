@@ -1,10 +1,8 @@
 package com.yuki312.denbun;
 
 import android.support.annotation.NonNull;
-import com.yuki312.denbun.internal.Dao;
+import com.yuki312.denbun.adjuster.FrequencyAdjuster;
 import com.yuki312.denbun.internal.DenbunId;
-import com.yuki312.denbun.internal.Frequency;
-import com.yuki312.denbun.internal.State;
 import com.yuki312.denbun.time.Time;
 
 import static com.yuki312.denbun.Util.nonNull;
@@ -70,7 +68,7 @@ public class Denbun {
    */
   public Denbun suppress(boolean suppress) {
     Frequency freq = (suppress ? Frequency.MAX : Frequency.MIN);
-    updateState(new State(state.id, freq, state.recent, state.count));
+    updateState(state.frequency(freq));
     return this;
   }
 
@@ -82,8 +80,7 @@ public class Denbun {
    * @return 表示可能であればtrue, それ以外はfalse.
    */
   public boolean isShowable() {
-    return new State(state.id,
-        adjuster.increment(state), state.recent, state.count).isShowable();
+    return state.frequency(adjuster.increment(state)).isShowable();
   }
 
   /**
@@ -116,8 +113,8 @@ public class Denbun {
     private FrequencyAdjuster adjuster;
     private Dao dao;
 
-    Builder(@NonNull String id) {
-      this.id = DenbunId.of(id);
+    Builder(@NonNull DenbunId id) {
+      this.id = nonNull(id);
     }
 
     Builder dao(@NonNull Dao dao) {

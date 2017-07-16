@@ -2,12 +2,10 @@ package com.yuki312.denbunsample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 import com.yuki312.denbun.Denbun;
-import com.yuki312.denbun.DenbunConfig;
 import com.yuki312.denbun.DenbunPool;
-import com.yuki312.denbun.internal.Frequency;
+import com.yuki312.denbun.Frequency;
 
 public class MainActivity extends AppCompatActivity {
 

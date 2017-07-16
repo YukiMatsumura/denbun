@@ -44,3 +44,10 @@ Or suppress messages.
 Denbun msg = DenbunPool.take(ID)
 msg.suppress(true);
 ```
+
+
+## Frequency adjusters
+
+There are several adjusters provided in this library.
+
+ -
