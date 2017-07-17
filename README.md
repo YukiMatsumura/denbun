@@ -7,11 +7,11 @@
 [![CircleCI](https://circleci.com/gh/YukiMatsumura/denbun.svg?style=shield)](https://circleci.com/gh/YukiMatsumura/denbun)
 
 Many applications are display messages using Dialogs, Toasts and Snackbars.  
-However, that messages may seem intrusive and may be tired.  
+However, that messages may seem intrusive and tired.  
 
 Denbun is a lightweight library.  
-This library supports to suppress messages and adjust frequency.
-Denbun("電文") in Japanese is called "Message" in English.
+Denbun("電文") in Japanese is called "Message" in English.  
+This library supports to suppress messages and adjust frequency.  
 
 For example...
 
@@ -20,8 +20,8 @@ For example...
  - Showing once per week
  - Dialog for light users
 
-Denbun records the display date and number of displaying.  
-And it helps to calculate the best timing to display next.  
+Denbun records the display time and counts.  
+And it helps to calculate the best timing of next display.  
 
 
 ## Usage
@@ -29,33 +29,37 @@ And it helps to calculate the best timing to display next.
 Following code will record the message state.  
 
 ```
-Denbun msg = DenbunPool.take(ID)
+Denbun msg = DenbunPool.find(ID)
 msg.shown(() -> dialog.show())
 ```
 
 You can adjust the frequency using this state.
 
 ```
-Denbun msg = DenbunPool.take(ID,
+Denbun msg = DenbunPool.find(ID,
     state -> state.count == 0 ? Frequency.MIN : Frequency.MAX);
-if (msg.isShowable()) { ... }
+if (msg.isShowable()) {
+  msg.shown();  // state.count was increment.
+}
 ```
 
 Or suppress messages.
 
 ```
 Denbun msg = DenbunPool.take(ID)
-msg.suppress(true);
+msg.suppress(true);  // msg.isShowable() is returned false.
 ```
 
 
-## Frequency adjusters
+### Preset frequency adjusters
 
 There are several adjusters provided in this library.
 
- - CountAdjuster ... For N shots dialogs.
- - IntervalAdjuster ... For periodic dialogs.
- - CoolDownAdjuster ... For periodic and N shots dialogs.
+Adjuster Name    | Description
+:----------------|:-------------
+CountAdjuster    | For N shots dialogs
+IntervalAdjuster | For periodic dialogs
+CoolDownAdjuster | For periodic and N shots dialogs
 
 
 ## Testability
