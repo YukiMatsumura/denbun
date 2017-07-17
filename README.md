@@ -58,6 +58,22 @@ There are several adjusters provided in this library.
  - CoolDownAdjuster ... For periodic and N shots dialogs.
 
 
+## Testability
+
+You can mock/spy the Denbun data access.
+
+```
+DenbunConfig conf = new DenbunConfig(app);
+
+// spy original DaoProvider
+Dao.Provider originalDaoProvider = conf.daoProvider();
+conf.daoProvider(pref -> (spyDao = spy(originalDaoProvider.create(pref))));
+DenbunPool.init(conf);
+
+DenbunPool.find("id").shown();
+verify(spyDao, times(1)).update(any());
+```
+
 ## License
 
 ```
