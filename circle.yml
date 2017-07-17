@@ -18,12 +18,11 @@ checkout:
 test:
   override:
     - ./gradlew :denbun:assembleRelease
-    - ./gradlew :example-and-tests:test
-    - ./gradlew :example-and-tests:jacocoTestReport
+    - ./gradlew :denbun:test
+    - ./gradlew :denbun:jacocoTestReport
+    - ./gradlew :example:test
 
   post:
     - cp -r ./denbun/build/outputs/* $CIRCLE_ARTIFACTS
-    - cp -r ./denbun/build/reports/* $CIRCLE_TEST_REPORTS/
-    - cp -r ./example-and-tests/build/outputs/* $CIRCLE_ARTIFACTS
-    - cp -r ./example-and-tests/build/reports/* $CIRCLE_TEST_REPORTS/
+    - cp -r ./denbun/build/reports/* $CIRCLE_TEST_REPORTS
     - bash <(curl -s https://codecov.io/bash)

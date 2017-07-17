@@ -1,6 +1,8 @@
 package com.yuki312.denbun.adapter;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import com.yuki312.denbun.Dao;
 import com.yuki312.denbun.Denbun;
 import com.yuki312.denbun.DenbunConfig;
@@ -19,7 +21,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 /**
  * Created by Yuki312 on 2017/07/17.
@@ -35,8 +37,14 @@ public class IntervalAdjusterTest {
   @Before public void setup() {
     DenbunPool.reset();
     DenbunConfig config = new DenbunConfig(app);
-    Dao.Provider defaultDaoProvider = config.daoProvider();
-    config.daoProvider(preference -> (dao = defaultDaoProvider.create(preference)));
+
+    final Dao.Provider defaultDaoProvider = config.daoProvider();
+    config.daoProvider(new Dao.Provider() {
+      @Override public Dao create(@NonNull SharedPreferences preference) {
+        return (dao = defaultDaoProvider.create(preference));
+      }
+    });
+
     DenbunPool.init(config);
   }
 

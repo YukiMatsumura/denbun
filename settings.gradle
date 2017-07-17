@@ -1,1 +1,1 @@
-include ':example-and-tests', ':denbun'
+include ':example', ':denbun'

@@ -3,7 +3,6 @@ package com.yuki312.denbun.internal;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.yuki312.denbun.BuildConfig;
 import com.yuki312.denbun.DenbunPool;
 import com.yuki312.denbun.Frequency;
 import com.yuki312.denbun.State;
@@ -12,12 +11,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.robolectric.annotation.Config;
 
 import static com.yuki312.denbun.internal.PreferenceKey.Count;
 import static com.yuki312.denbun.internal.PreferenceKey.Freq;
 import static com.yuki312.denbun.internal.PreferenceKey.Recent;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 /**
  * Created by Yuki312 on 2017/07/16.

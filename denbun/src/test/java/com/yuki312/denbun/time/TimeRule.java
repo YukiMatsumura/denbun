@@ -37,7 +37,7 @@ public class TimeRule implements TestRule {
 
   private long now;
 
-  @Override public Statement apply(Statement base, Description description) {
+  @Override public Statement apply(final Statement base, final Description description) {
     return new Statement() {
       @Override public void evaluate() throws Throwable {
         Now annotation = description.getAnnotation(Now.class);
@@ -48,7 +48,11 @@ public class TimeRule implements TestRule {
 
         try {
           now = parse(annotation.value());
-          lockCurrentTime(() -> now);
+          lockCurrentTime(new Time.NowProvider() {
+            @Override public long now() {
+              return now;
+            }
+          });
           base.evaluate();
         } finally {
           unlockCurrentTime();

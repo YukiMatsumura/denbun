@@ -1,25 +1,20 @@
 package com.yuki312.denbun;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.yuki312.denbun.adjuster.FrequencyAdjuster;
 import com.yuki312.denbun.internal.DenbunId;
-import com.yuki312.denbun.time.Time;
 import com.yuki312.denbun.time.TimeRule;
 import com.yuki312.denbun.time.TimeRule.Now;
-import java.util.Calendar;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
-import org.threeten.bp.Instant;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneId;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -40,8 +35,13 @@ public class DenbunTest {
   @Before public void setup() {
     DenbunPool.reset();
     config = new DenbunConfig(app);
-    Dao.Provider defaultDaoProvider = config.daoProvider();
-    config.daoProvider(preference -> (dao = defaultDaoProvider.create(preference)));
+
+    final Dao.Provider defaultDaoProvider = config.daoProvider();
+    config.daoProvider(new Dao.Provider() {
+      @Override public Dao create(@NonNull SharedPreferences preference) {
+        return (dao = defaultDaoProvider.create(preference));
+      }
+    });
   }
 
   @Test public void defaultState() {
@@ -85,25 +85,25 @@ public class DenbunTest {
         .suppress(false);
 
     msg.shown();  // frequency is now 30
-    verify(spy, times(1)).increment(any());
+    verify(spy, times(1)).increment(any(State.class));
     assertThat(dao.find(DenbunId.of("id")).frequency.value).isEqualTo(30);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
 
     msg.shown();  // frequency is now 60
-    verify(spy, times(3)).increment(any());  // increment(..) was called by isShowable() and shown()
+    verify(spy, times(3)).increment(any(State.class));  // increment(..) was called by isShowable() and shown()
     assertThat(dao.find(DenbunId.of("id")).frequency.value).isEqualTo(60);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isTrue();
 
     msg.shown();  // frequency is now 90
-    verify(spy, times(5)).increment(any());
+    verify(spy, times(5)).increment(any(State.class));
     assertThat(dao.find(DenbunId.of("id")).frequency.value).isEqualTo(90);
     assertThat(msg.isSuppress()).isFalse();
     assertThat(msg.isShowable()).isFalse();
 
     msg.shown();  // frequency is now 100(high)
-    verify(spy, times(7)).increment(any());
+    verify(spy, times(7)).increment(any(State.class));
     assertThat(dao.find(DenbunId.of("id")).frequency.value).isEqualTo(Frequency.MAX.value);
     assertThat(msg.isSuppress()).isTrue();
     assertThat(msg.isShowable()).isFalse();
@@ -117,44 +117,6 @@ public class DenbunTest {
 
     msg.suppress(false);
     assertThat(msg.isSuppress()).isFalse();
-  }
-
-  @Test @Now public void showablePerDay() {
-    DenbunPool.init(config);
-    long now = System.currentTimeMillis();
-    timeRule.advanceTimeTo(now);
-
-    FrequencyAdjuster freq = new FrequencyAdjuster() {
-      @Override public Frequency increment(@NonNull State state) {
-        LocalDateTime now =
-            OffsetDateTime.ofInstant(Instant.ofEpochMilli(Time.now()), ZoneId.systemDefault())
-                .toLocalDateTime();
-        LocalDateTime yesterday = now.minusDays(1);
-        LocalDateTime recent =
-            OffsetDateTime.ofInstant(Instant.ofEpochMilli(state.recent), ZoneId.systemDefault())
-                .toLocalDateTime();
-
-        if (recent.isBefore(yesterday) || recent.isEqual(yesterday)) {
-          return Frequency.MIN;
-        } else {
-          return Frequency.MAX;
-        }
-      }
-    };
-
-    Denbun msg = DenbunPool.find("id", freq);
-    assertThat(msg.isShowable()).isTrue();
-    msg.shown();
-
-    assertThat(msg.isShowable()).isFalse();
-
-    Calendar cal = Calendar.getInstance();
-    cal.setTimeInMillis(now);
-    cal.add(Calendar.DATE, 1);
-
-    timeRule.advanceTimeTo(cal.getTimeInMillis());
-
-    assertThat(msg.isShowable()).isTrue();
   }
 
   @Test public void showableOnly3Times() {
