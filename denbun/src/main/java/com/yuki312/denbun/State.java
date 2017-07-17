@@ -7,6 +7,9 @@ import com.yuki312.denbun.internal.DenbunId;
 import static com.yuki312.denbun.Util.nonNull;
 
 /**
+ * Denbun state.
+ * This object is immutable.
+ *
  * Created by Yuki312 on 2017/07/08.
  */
 public class State {

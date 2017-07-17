@@ -12,6 +12,10 @@ import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
 
 /**
+ * Class that pooling the Denbun.
+ * Denbun instance is obtained from this class.
+ * The generated Denbun instance is pooled and reused.
+ *
  * Created by Yuki312 on 2017/07/13.
  */
 public class DenbunPool {
@@ -23,6 +27,10 @@ public class DenbunPool {
   private static HashMap<DenbunId, Denbun> pool;
   private static Dao dao;
 
+  /**
+   * Initialize Pool.
+   * DenbunPool can not be initialized more than once
+   */
   public static void init(@NonNull DenbunConfig config) {
     nonNull(config, "DenbunConfig can not be null");
 
@@ -45,10 +53,20 @@ public class DenbunPool {
     return config != null;
   }
 
+  /**
+   * Get Denbun with the specified ID from the pool.
+   * When an ID that does not exist in the pool, Denbun that FrequencyAdjuster is not
+   * set is generated and returned. Denbun is set with persisted information.
+   */
   @CheckResult public static Denbun find(@NonNull String id) {
     return find(id, Denbun.DEFAULT_FREQUENCY_ADAPTER);
   }
 
+  /**
+   * Get Denbun with the specified ID from the pool.
+   * When an ID that does not exist in the pool, Denbun with adjuster is created and returned.
+   * Denbun is set with persisted information.
+   */
   @CheckResult public static Denbun find(@NonNull String id, @NonNull FrequencyAdjuster adjuster) {
     nonNull(id, "Denbun ID can not be null");
     nonNull(adjuster, "FrequencyAdjuster can not be null.");
@@ -70,6 +88,9 @@ public class DenbunPool {
     return msg;
   }
 
+  /**
+   * Delete the Denbun with the specified ID from the DenbunPool and the persisted information.
+   */
   public static void remove(@NonNull String id) {
     nonNull(id, "Denbun ID can not be null");
     checkInitialized();
@@ -82,6 +103,11 @@ public class DenbunPool {
     dao.delete(denbunId);
   }
 
+  /**
+   * Check existence of Denbun.
+   *
+   * @return true: exist. false: not exist.
+   */
   public static boolean exist(@NonNull String id) {
     notBlank(id);
     checkInitialized();

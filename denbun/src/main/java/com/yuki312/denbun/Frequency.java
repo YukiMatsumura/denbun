@@ -8,17 +8,25 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 /**
+ * Message frequency.
+ * This object is immutable.
+ *
  * Created by Yuki312 on 2017/07/08.
  */
 public class Frequency {
 
   private static final int UPPER = 100;
   private static final int LOWER = 0;
+
   public static final Frequency MAX = new Frequency(UPPER);
   public static final Frequency MIN = new Frequency(LOWER);
 
   public final int value;
 
+  /**
+   * Create Frequency with value.
+   * If a value below (or above) the range is specified, it is rounded.
+   */
   @CheckResult public static Frequency of(@IntRange(from = LOWER, to = UPPER) int value) {
     return new Frequency(value);
   }

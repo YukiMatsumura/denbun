@@ -144,7 +144,7 @@ public class DenbunTest {
   @Test public void showingAction() {
     DenbunPool.init(config);
 
-    Denbun.Action action = spy(new Denbun.Action() {
+    Denbun.ShowingAction action = spy(new Denbun.ShowingAction() {
       @Override public void call() {
       }
     });

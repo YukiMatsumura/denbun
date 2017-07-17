@@ -8,11 +8,23 @@ import com.yuki312.denbun.time.Time;
 import static com.yuki312.denbun.Util.nonNull;
 
 /**
+ * Denbun("Message").
+ * This state is saved/restored to/from Preference.
+ * And Denbun instance will cached in DenbunPool and recycled.
+ *
  * Created by Yuki312 on 2017/07/03.
  */
 public class Denbun {
 
-  public interface Action {
+  /**
+   * If you want to take action on Denbun.show(), you can use this interface.
+   */
+  public interface ShowingAction {
+
+    /**
+     * Called *before* denbun.show() method calling.
+     * This means that the state of Denbun is not yet updated.
+     */
     void call();
   }
 
@@ -41,30 +53,35 @@ public class Denbun {
   }
 
   /**
-   * このメッセージが表示を制限されているか否か.
+   * Whether to display is suppressed or not.
+   * It is also suppressed when message display frequency is high.
    *
-   * 当分の間, メッセージの表示を抑制したい場合などにこのフラグは使用できる.
+   * @return true: suppressed. false: not suppressed.
    */
   public boolean isSuppress() {
     return state.frequency.isLimited();
   }
 
   /**
-   * このメッセージが最後に表示された日時.
+   * Last displayed time of message.
+   *
+   * @return the difference, measured in milliseconds, between the current time and midnight,
+   * January 1, 1970 UTC.
    */
   public long recent() {
     return state.recent;
   }
 
   /**
-   * メッセージの表示回数を取得する
+   * Display count of message.
    */
   public int count() {
     return state.count;
   }
 
   /**
-   * メッセージを抑制する
+   * Suppress message.
+   * As a result, the display frequency is highest.
    */
   public Denbun suppress(boolean suppress) {
     Frequency freq = (suppress ? Frequency.MAX : Frequency.MIN);
@@ -73,18 +90,20 @@ public class Denbun {
   }
 
   /**
-   * このメッセージが表示可能かどうかを確認する.
-   * 表示可能性は, メッセージの表示頻度が評価された上で算出される.
-   * つまり, このメッセージを表示することによって表示頻度が過度であると判断される場合はfalseを返す.
+   * Check if this message can be displayed.
+   * Check as to whether it can be displayed is performed after the display frequency of the
+   * message is evaluated.
+   * In other words, this method returns false if it is judged that the display frequency is
+   * excessive by displaying a message.
    *
-   * @return 表示可能であればtrue, それ以外はfalse.
+   * @return true: can be displayed. false: can not.
    */
   public boolean isShowable() {
     return state.frequency(adjuster.increment(state)).isShowable();
   }
 
   /**
-   * メッセージを表示したことを通知する.
+   * Record that the message was displayed.
    */
   public Denbun shown() {
     updateState(new State(
@@ -95,7 +114,11 @@ public class Denbun {
     return this;
   }
 
-  public Denbun shown(Action action) {
+  /**
+   * Record that the message was displayed.
+   * ShowingAction is called before being recorded.
+   */
+  public Denbun shown(ShowingAction action) {
     action.call();
     return shown();
   }
