@@ -12,14 +12,13 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "extra-google-m2repository,extra-android-m2repository,android-25,build-tools-25.0.2"
 
 checkout:
-   post:
-        - cp -r licenses/. $ANDROID_HOME/licenses
+  post:
+    - cp -r licenses/. $ANDROID_HOME/licenses
 
 test:
   override:
     - ./gradlew :denbun:assembleRelease
-    - ./gradlew :denbun:test
-    - ./gradlew :denbun:jacocoTestReport
+    - ./gradlew :denbun:testDebugUnitTestCoverage
     - ./gradlew :example:test
 
   post:
