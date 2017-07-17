@@ -14,10 +14,16 @@ dependencies:
 checkout:
    post:
         - cp -r licenses/. $ANDROID_HOME/licenses
+
 test:
   override:
-    - ./gradlew test
+    - ./gradlew :denbun:assembleRelease
+    - ./gradlew :example-and-tests:test
+    - ./gradlew :example-and-tests:jacocoTestReport
 
   post:
     - cp -r ./denbun/build/outputs/* $CIRCLE_ARTIFACTS
+    - cp -r ./denbun/build/reports/* $CIRCLE_TEST_REPORTS/
     - cp -r ./example-and-tests/build/outputs/* $CIRCLE_ARTIFACTS
+    - cp -r ./example-and-tests/build/reports/* $CIRCLE_TEST_REPORTS/
+    - bash <(curl -s https://codecov.io/bash)
