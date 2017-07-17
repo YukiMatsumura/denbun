@@ -29,14 +29,14 @@ And it helps to calculate the best timing of next display.
 
 Following code will record the message state.  
 
-```
+```java
 Denbun msg = DenbunPool.find(ID)
 msg.shown(() -> dialog.show())
 ```
 
 You can adjust the frequency using this state.
 
-```
+```java
 Denbun msg = DenbunPool.find(ID,
     state -> state.count == 0 ? Frequency.MIN : Frequency.MAX);
 if (msg.isShowable()) {
@@ -46,7 +46,7 @@ if (msg.isShowable()) {
 
 Or suppress messages.
 
-```
+```java
 Denbun msg = DenbunPool.take(ID)
 msg.suppress(true);  // msg.isShowable() is returned false.
 ```
@@ -67,7 +67,7 @@ CoolDownAdjuster | For periodic and N shots dialogs
 
 You can mock/spy the Denbun data access.
 
-```
+```java
 DenbunConfig conf = new DenbunConfig(app);
 
 // spy original DaoProvider
