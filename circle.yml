@@ -1,0 +1,19 @@
+general:
+  build_dir: ./
+machine:
+  java:
+    version: oraclejdk8
+  environment:
+    ANDROID_HOME: /usr/local/android-sdk-linux
+
+dependencies:
+  override:
+    - echo y | android update sdk --no-ui --all --filter "extra-google-m2repository,extra-android-m2repository,android-25,build-tools-25.0.2"
+
+test:
+  override:
+    - ./gradlew test
+
+  post:
+    - cp -r ./denbun/build/outputs/* $CIRCLE_ARTIFACTS
+    - cp -r ./example-and-tests/build/outputs/* $CIRCLE_ARTIFACTS
