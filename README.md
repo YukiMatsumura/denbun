@@ -1,8 +1,10 @@
+<img  src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" align="right" />
+
+# ⚡Denbun
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![codecov](https://codecov.io/gh/YukiMatsumura/denbun/branch/master/graph/badge.svg)](https://codecov.io/gh/YukiMatsumura/denbun)
 [![CircleCI](https://circleci.com/gh/YukiMatsumura/denbun.svg?style=shield)](https://circleci.com/gh/YukiMatsumura/denbun)
-
-# ⚡Denbun
 
 Many applications are display messages using Dialogs, Toasts and Snackbars.  
 However, that messages may seem intrusive and may be tired.  
@@ -56,7 +58,7 @@ There are several adjusters provided in this library.
  - CoolDownAdjuster ... For periodic and N shots dialogs.
 
 
-## LICENSE
+## License
 
 ```
 Copyright 2017 Matsumura Yuki.
