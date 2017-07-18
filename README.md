@@ -14,9 +14,13 @@ Message notification, may be poor user experience.
 So, it is important to display as necessary to the required timing.  
 
 Denbun("電文") in Japanese is called "Message" in English.  
-
-<img src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" align="center" />
-
+  
+  
+<p align="center">
+<img src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" width="176" height="120" alt="denbun" />
+</p>
+  
+  
 For example...
 
  - Dialog with "Don't ask again"
@@ -24,7 +28,7 @@ For example...
  - Showing once per week
  - Dialog for light users
 
-Denbun records the display time and counts.  
+Denbun records the display time, counts and Frequency.  
 And it helps to calculate the best timing of next display.  
 
 
