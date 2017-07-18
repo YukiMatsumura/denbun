@@ -1,18 +1,23 @@
-<img  src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" align="right" />
+# Denbun  [![Download](https://api.bintray.com/packages/yuki312/maven/denbun/images/download.svg) ](https://bintray.com/yuki312/maven/denbun/_latestVersion) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![codecov](https://codecov.io/gh/YukiMatsumura/denbun/branch/master/graph/badge.svg)](https://codecov.io/gh/YukiMatsumura/denbun) [![CircleCI](https://circleci.com/gh/YukiMatsumura/denbun.svg?style=shield)](https://circleci.com/gh/YukiMatsumura/denbun)
 
-# Denbun
+<br />
+<br />
 
-[![Download](https://api.bintray.com/packages/yuki312/maven/denbun/images/download.svg)](https://bintray.com/yuki312/maven/denbun/_latestVersion)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![codecov](https://codecov.io/gh/YukiMatsumura/denbun/branch/master/graph/badge.svg)](https://codecov.io/gh/YukiMatsumura/denbun)
-[![CircleCI](https://circleci.com/gh/YukiMatsumura/denbun.svg?style=shield)](https://circleci.com/gh/YukiMatsumura/denbun)
+<p align="center">
+<img src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" width="176" height="120" alt="denbun" />
+</p>
+
+<br />
+
+"Denbun" is a lightweight library.  
+This library supports to suppress messages and adjust frequency.  
 
 Many applications are display messages using Dialogs, Toasts and Snackbars.  
-However, that messages may seem intrusive and tired.  
+However, the message may be disturbing and may seem boring.  
+Message notification, may be poor user experience.  
+So, it is important to display as necessary to the required timing.  
 
-Denbun is a lightweight library.  
 Denbun("電文") in Japanese is called "Message" in English.  
-This library supports to suppress messages and adjust frequency.  
 
 For example...
 
@@ -21,34 +26,35 @@ For example...
  - Showing once per week
  - Dialog for light users
 
-Denbun records the display time and counts.  
+Denbun records the display time, counts and Frequency.  
 And it helps to calculate the best timing of next display.  
 
 
 ## Usage
 
 Following code will record the message state.  
+Message state will stored to SharedPreference.  
 
 ```java
-Denbun msg = DenbunPool.find(ID)
-msg.shown(() -> dialog.show())
+Denbun msg = DenbunPool.find(ID);
+msg.shown(() -> dialog.show());
 ```
 
-You can adjust the frequency using this state.
+You can adjust the frequency using this state.  
 
 ```java
 Denbun msg = DenbunPool.find(ID,
-    state -> state.count == 0 ? Frequency.MIN : Frequency.MAX);
-if (msg.isShowable()) {
-  msg.shown();  // state.count was increment.
-}
+    s -> s.count == 0 ? Frequency.MIN : Frequency.MAX);
+if (msg.isShowable())
+  msg.shown();  // s.count will increment.
 ```
 
-Or suppress messages.
+Or suppress message.  
 
 ```java
-Denbun msg = DenbunPool.take(ID)
-msg.suppress(true);  // msg.isShowable() is returned false.
+Denbun msg = DenbunPool.take(ID);
+msg.suppress(true);
+assert msg.isShowable() == false;
 ```
 
 
@@ -65,17 +71,17 @@ CoolDownAdjuster | For periodic and N shots dialogs
 
 ## Testability
 
-You can mock/spy the Denbun data access.
+You can mock/spy the Denbun data IO.
 
 ```java
 DenbunConfig conf = new DenbunConfig(app);
 
 // spy original DaoProvider
-Dao.Provider originalDaoProvider = conf.daoProvider();
-conf.daoProvider(pref -> (spyDao = spy(originalDaoProvider.create(pref))));
+Dao.Provider origin = conf.daoProvider();
+conf.daoProvider(pref -> (spyDao = spy(origin.create(pref))));
 DenbunPool.init(conf);
 
-DenbunPool.find("id").shown();
+DenbunPool.find(ID).shown();
 verify(spyDao, times(1)).update(any());
 ```
 
