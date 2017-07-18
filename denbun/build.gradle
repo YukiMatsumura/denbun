@@ -38,6 +38,7 @@ dependencies {
   testCompile 'org.assertj:assertj-core:3.6.2'
 }
 
+// ./gradlew clean :denbun:build :denbun:bintrayUpload -PbintrayUser=[bintrayUser] -PbintrayKey=[bintrayKey] -PdryRun=false
 publish {
   userOrg = USER_ORG
   groupId = GROUP_ID
