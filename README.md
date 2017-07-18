@@ -27,6 +27,15 @@ Denbun records the display time, counts and Frequency.
 It helps to calculate the best timing of next display.  
 
 
+## Download
+
+Get the [latest JARs](https://bintray.com/yuki312/maven/denbun/_latestVersion) or grab via Gradle:
+
+```gradle
+compile 'com.yuki312:denbun:<latest version>'
+```
+
+
 ## Usage
 
 First, initialize DenbunPool with `Application.onCreate`.  
@@ -109,6 +118,4 @@ verify(spyDao, times(1)).update(any());
 
 ## License
 
-```
 Copyright 2017 Matsumura Yuki. Licensed under the Apache License, Version 2.0;
-```
