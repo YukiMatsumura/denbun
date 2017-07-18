@@ -1,11 +1,10 @@
-# Denbun
+# Denbun [![Download](https://api.bintray.com/packages/yuki312/maven/denbun/images/download.svg)](https://bintray.com/yuki312/maven/denbun/_latestVersion) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![codecov](https://codecov.io/gh/YukiMatsumura/denbun/branch/master/graph/badge.svg)](https://codecov.io/gh/YukiMatsumura/denbun) [![CircleCI](https://circleci.com/gh/YukiMatsumura/denbun.svg?style=shield)](https://circleci.com/gh/YukiMatsumura/denbun)
 
-[![Download](https://api.bintray.com/packages/yuki312/maven/denbun/images/download.svg)](https://bintray.com/yuki312/maven/denbun/_latestVersion)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![codecov](https://codecov.io/gh/YukiMatsumura/denbun/branch/master/graph/badge.svg)](https://codecov.io/gh/YukiMatsumura/denbun)
-[![CircleCI](https://circleci.com/gh/YukiMatsumura/denbun.svg?style=shield)](https://circleci.com/gh/YukiMatsumura/denbun)
+<p align="center">
+<img src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" width="176" height="120" alt="denbun" />
+</p>
 
-Denbun is a lightweight library.  
+"Denbun" is a lightweight library.  
 This library supports to suppress messages and adjust frequency.  
 
 Many applications are display messages using Dialogs, Toasts and Snackbars.  
@@ -14,13 +13,7 @@ Message notification, may be poor user experience.
 So, it is important to display as necessary to the required timing.  
 
 Denbun("電文") in Japanese is called "Message" in English.  
-  
-  
-<p align="center">
-<img src="https://github.com/YukiMatsumura/denbun/blob/master/art/logo.png?raw=true" width="176" height="120" alt="denbun" />
-</p>
-  
-  
+
 For example...
 
  - Dialog with "Don't ask again"
