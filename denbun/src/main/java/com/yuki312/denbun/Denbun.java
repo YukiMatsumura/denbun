@@ -10,7 +10,7 @@ import static com.yuki312.denbun.Util.nonNull;
 /**
  * Denbun("Message").
  * This state is saved/restored to/from Preference.
- * And Denbun instance will cached in DenbunPool and recycled.
+ * And Denbun instance will cached in XXX and recycled. TODO:
  *
  * Created by Yuki312 on 2017/07/03.
  */
@@ -153,7 +153,7 @@ public class Denbun {
     Denbun build() {
       nonNull(id, "Denbun ID can not be null");
       nonNull(adjuster, "FrequencyAdjuster can not be null");
-      nonNull(dao, "DenbunPool has no DAO. initialized DenbunPool?");
+      nonNull(dao, "DenbunBox has no DAO. initialized DenbunBox?");
       return new Denbun(id, adjuster, dao);
     }
   }

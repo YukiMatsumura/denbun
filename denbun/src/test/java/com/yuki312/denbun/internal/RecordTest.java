@@ -3,7 +3,7 @@ package com.yuki312.denbun.internal;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.yuki312.denbun.DenbunPool;
+import com.yuki312.denbun.DenbunBox;
 import com.yuki312.denbun.Frequency;
 import com.yuki312.denbun.State;
 import org.junit.Before;
@@ -26,7 +26,7 @@ public class RecordTest {
   private Application app = RuntimeEnvironment.application;
 
   @Before public void setup() {
-    DenbunPool.reset();
+    DenbunBox.reset();
   }
 
   @Test public void preferenceKeyFormat() {

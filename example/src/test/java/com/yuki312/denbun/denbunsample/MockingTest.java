@@ -3,7 +3,7 @@ package com.yuki312.denbun.denbunsample;
 import android.app.Application;
 import com.yuki312.denbun.Dao;
 import com.yuki312.denbun.DenbunConfig;
-import com.yuki312.denbun.DenbunPool;
+import com.yuki312.denbun.DenbunBox;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class MockingTest {
   private Dao spyDao;
 
   @Before public void setup() {
-    DenbunPool.reset();
+    DenbunBox.reset();
   }
 
   @Test public void spyDenbunIO() {
@@ -34,9 +34,9 @@ public class MockingTest {
     // spy original DaoProvider
     Dao.Provider originalDaoProvider = conf.daoProvider();
     conf.daoProvider(pref -> (spyDao = spy(originalDaoProvider.create(pref))));
-    DenbunPool.init(conf);
+    DenbunBox.init(conf);
 
-    DenbunPool.find("id").shown();
+    DenbunBox.get("id").shown();
     verify(spyDao, times(1)).update(any());
   }
 }

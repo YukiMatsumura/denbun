@@ -18,7 +18,7 @@ public class DenbunIdTest {
   private final String RESERVED_WORD = PreferenceKey.reservedWord();
 
   @Before public void setup() {
-    DenbunPool.reset();
+    DenbunBox.reset();
   }
 
   @Test(expected = IllegalArgumentException.class) public void reservedId1() {

@@ -5,8 +5,8 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.yuki312.denbun.Dao;
 import com.yuki312.denbun.Denbun;
+import com.yuki312.denbun.DenbunBox;
 import com.yuki312.denbun.DenbunConfig;
-import com.yuki312.denbun.DenbunPool;
 import com.yuki312.denbun.adjuster.CountAdjuster;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class CountAdjusterTest {
   private Dao dao;
 
   @Before public void setup() {
-    DenbunPool.reset();
+    DenbunBox.reset();
     DenbunConfig config = new DenbunConfig(app);
 
     final Dao.Provider defaultDaoProvider = config.daoProvider();
@@ -35,11 +35,11 @@ public class CountAdjusterTest {
         return (dao = defaultDaoProvider.create(preference));
       }
     });
-    DenbunPool.init(config);
+    DenbunBox.init(config);
   }
 
   @Test public void basic() {
-    Denbun msg = DenbunPool.find("id", new CountAdjuster(5));
+    Denbun msg = DenbunBox.get("id", new CountAdjuster(5));
     assertThat(msg.isShowable()).isTrue();
 
     for (int i = 0; i < 4; i++) {

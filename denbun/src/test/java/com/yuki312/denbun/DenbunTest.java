@@ -33,7 +33,7 @@ public class DenbunTest {
   private Dao dao;
 
   @Before public void setup() {
-    DenbunPool.reset();
+    DenbunBox.reset();
     config = new DenbunConfig(app);
 
     final Dao.Provider defaultDaoProvider = config.daoProvider();
@@ -45,9 +45,9 @@ public class DenbunTest {
   }
 
   @Test public void defaultState() {
-    DenbunPool.init(config);
+    DenbunBox.init(config);
 
-    Denbun msg = DenbunPool.find("id");
+    Denbun msg = DenbunBox.get("id");
 
     assertThat(msg.id()).isEqualTo("id");
     assertThat(msg.isSuppress()).isFalse();
@@ -57,7 +57,7 @@ public class DenbunTest {
   }
 
   @Test @Now public void updateState() {
-    DenbunPool.init(config);
+    DenbunBox.init(config);
     FrequencyAdjuster spy = spy(new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State state) {
         return state.frequency;  // no-op
@@ -65,7 +65,7 @@ public class DenbunTest {
     });
     timeRule.advanceTimeTo(100L);
 
-    Denbun msg = DenbunPool.find("id", spy)
+    Denbun msg = DenbunBox.get("id", spy)
         .suppress(true)
         .shown();
 
@@ -75,13 +75,13 @@ public class DenbunTest {
   }
 
   @Test public void incrementFrequency() {
-    DenbunPool.init(config);
+    DenbunBox.init(config);
     FrequencyAdjuster spy = spy(new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State history) {
         return history.frequency.plus(30);
       }
     });
-    Denbun msg = DenbunPool.find("id", spy)
+    Denbun msg = DenbunBox.get("id", spy)
         .suppress(false);
 
     msg.shown();  // frequency is now 30
@@ -110,8 +110,8 @@ public class DenbunTest {
   }
 
   @Test public void resetFrequency() {
-    DenbunPool.init(config);
-    Denbun msg = DenbunPool.find("id")
+    DenbunBox.init(config);
+    Denbun msg = DenbunBox.get("id")
         .suppress(true);
     assertThat(msg.isSuppress()).isTrue();
 
@@ -120,7 +120,7 @@ public class DenbunTest {
   }
 
   @Test public void showableOnly3Times() {
-    DenbunPool.init(config);
+    DenbunBox.init(config);
 
     FrequencyAdjuster freq = new FrequencyAdjuster() {
       @Override public Frequency increment(@NonNull State state) {
@@ -128,7 +128,7 @@ public class DenbunTest {
       }
     };
 
-    Denbun msg = DenbunPool.find("id", freq);
+    Denbun msg = DenbunBox.get("id", freq);
     assertThat(msg.isShowable()).isTrue();
     msg.shown();
 
@@ -142,13 +142,13 @@ public class DenbunTest {
   }
 
   @Test public void showingAction() {
-    DenbunPool.init(config);
+    DenbunBox.init(config);
 
     Denbun.ShowingAction action = spy(new Denbun.ShowingAction() {
       @Override public void call() {
       }
     });
-    Denbun msg = DenbunPool.find("id");
+    Denbun msg = DenbunBox.get("id");
 
     msg.shown(action);
 

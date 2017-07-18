@@ -5,8 +5,8 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.yuki312.denbun.Dao;
 import com.yuki312.denbun.Denbun;
+import com.yuki312.denbun.DenbunBox;
 import com.yuki312.denbun.DenbunConfig;
-import com.yuki312.denbun.DenbunPool;
 import com.yuki312.denbun.Frequency;
 import com.yuki312.denbun.State;
 import com.yuki312.denbun.adjuster.CoolDownAdjuster;
@@ -35,7 +35,7 @@ public class CoolDownAdjusterTest {
   private Dao dao;
 
   @Before public void setup() {
-    DenbunPool.reset();
+    DenbunBox.reset();
     DenbunConfig config = new DenbunConfig(app);
 
     final Dao.Provider defaultDaoProvider = config.daoProvider();
@@ -45,7 +45,7 @@ public class CoolDownAdjusterTest {
       }
     });
 
-    DenbunPool.init(config);
+    DenbunBox.init(config);
   }
 
   private void preset(String id, int frequency, long recent, int count) {
@@ -56,7 +56,7 @@ public class CoolDownAdjusterTest {
     timeRule.advanceTimeTo(100L);
     preset("id", Frequency.MAX.value, 100L, 1);
 
-    Denbun msg = DenbunPool.find("id", new CoolDownAdjuster(1f / 3f, 100L, TimeUnit.MILLISECONDS));
+    Denbun msg = DenbunBox.get("id", new CoolDownAdjuster(1f / 3f, 100L, TimeUnit.MILLISECONDS));
     assertThat(msg.isShowable()).isFalse();
 
     timeRule.advanceTimeTo(199L);
