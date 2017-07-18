@@ -38,6 +38,9 @@ public class FrequencyTest {
 
     assertThat(Frequency.of(MIN).plus(Frequency.of(5))).isEqualTo(Frequency.of(MIN + 5));
     assertThat(Frequency.of(MAX).plus(Frequency.of(1))).isEqualTo(Frequency.of(MAX));
+
+    Frequency freq = Frequency.of(1);
+    assertThat(freq.plus(null)).isEqualTo(freq);
   }
 
   @Test public void minus() {
@@ -49,9 +52,12 @@ public class FrequencyTest {
 
     assertThat(Frequency.of(MAX).minus(Frequency.of(5))).isEqualTo(Frequency.of(MAX - 5));
     assertThat(Frequency.of(MIN).minus(Frequency.of(5))).isEqualTo(Frequency.of(MIN));
+
+    Frequency freq = Frequency.of(1);
+    assertThat(freq.minus(null)).isEqualTo(freq);
   }
 
-  @Test public void equality() {
+  @SuppressWarnings("EqualsWithItself") @Test public void equality() {
     Frequency f1 = Frequency.of(10);
     Frequency f2 = Frequency.of(10);
     Frequency f3 = Frequency.of(11).minus(1);
@@ -64,6 +70,11 @@ public class FrequencyTest {
     Frequency fMin = Frequency.of(MIN);
     assertThat(Frequency.of(MAX - 5)).isEqualTo(fMax.minus(5));
     assertThat(Frequency.of(MIN + 5)).isEqualTo(fMin.plus(5));
+
+    Frequency f4 = Frequency.of(20);
+    assertThat(f4.equals(f4)).isTrue();
+    assertThat(f4.equals(null)).isFalse();
+    assertThat(f4.equals(new Object())).isFalse();
   }
 
   @Test public void hash() {
