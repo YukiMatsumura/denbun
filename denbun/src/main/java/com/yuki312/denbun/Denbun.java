@@ -28,7 +28,7 @@ public class Denbun {
     void call();
   }
 
-  public static FrequencyAdjuster DEFAULT_FREQUENCY_ADAPTER = new FrequencyAdjuster() {
+  public static FrequencyAdjuster DEFAULT_FREQUENCY_ADJUSTER = new FrequencyAdjuster() {
     @Override public Frequency increment(@NonNull State state) {
       // The default behavior is to always return the same value.
       return state.frequency;

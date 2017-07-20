@@ -13,9 +13,13 @@ import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
 
 /**
- * Class that pooling the Denbun.
- * Denbun instance is obtained from this class.
- * The generated Denbun instance is pooled and reused.
+ * Denbun factory class.
+ *
+ * Call get(String) method If you want to get Denbun.
+ * Alternatively, if you want to get a Denbun with a specific FrequencyAdjuster,
+ * call the get(String, FrequencyAdjuster) method.
+ * In advance, if you want to specify a FrequencyAdjuster to be set in the Denbun,
+ * it may call a preset(String, FrequencyAdjuster) method.
  *
  * Created by Yuki312 on 2017/07/13.
  */
@@ -55,7 +59,9 @@ public class DenbunBox {
   }
 
   /**
-   * TODO:
+   * Create the Denbun instance.
+   *
+   * It has DEFAULT_FREQUENCY_ADJUSTER. Or specific Adjuster that you preset.
    */
   @CheckResult public static Denbun get(@NonNull String id) {
     checkInitialized();
@@ -64,12 +70,14 @@ public class DenbunBox {
     if (presetAdjuster.containsKey(denbunId)) {
       return get(denbunId, presetAdjuster.get(denbunId));
     } else {
-      return get(denbunId, Denbun.DEFAULT_FREQUENCY_ADAPTER);
+      return get(denbunId, Denbun.DEFAULT_FREQUENCY_ADJUSTER);
     }
   }
 
   /**
-   * TODO:
+   * Create the Denbun instance.
+   *
+   * It has specific Adjuster.
    */
   @CheckResult public static Denbun get(@NonNull String id, @NonNull FrequencyAdjuster adjuster) {
     checkInitialized();
@@ -80,11 +88,7 @@ public class DenbunBox {
   private static Denbun get(@NonNull DenbunId id, @NonNull FrequencyAdjuster adjuster) {
     nonNull(adjuster, "FrequencyAdjuster can not be null.");
 
-    return new Denbun
-        .Builder(id)
-        .dao(dao)
-        .adjuster(adjuster)
-        .build();
+    return new Denbun.Builder(id).dao(dao).adjuster(adjuster).build();
   }
 
   /**
