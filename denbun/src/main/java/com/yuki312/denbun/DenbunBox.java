@@ -137,7 +137,7 @@ public class DenbunBox {
   private static void checkInitialized() {
     if (!initialized()) {
       throw new IllegalStateException(
-          "Denbun is not initialized. Call Denbun.init(config) in Application.onCreate().");
+          "Denbun is not initialized. Call DenbunBox.init(config) in Application.onCreate().");
     }
   }
 }

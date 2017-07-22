@@ -15,7 +15,7 @@ For example...
  - Showing once per week
  - Dialog for light users
 
-Denbun is store the display time, counts and Frequency.  
+Denbun is save the display time, counts and Frequency.  
 It helps to calculate the best timing of next display.  
 
 <br />
@@ -51,7 +51,7 @@ Following code will save the message state.
 
 ```java
 Denbun msg = DenbunBox.get(ID);
-msg.shown(() -> dialog.show());
+msg.shown();
 ```
 
 Display frequency can be adjusted with the adjuster.  
@@ -59,12 +59,13 @@ Display frequency can be adjusted with the adjuster.
 ```java
 // This message is displayed only once.
 Denbun msg = DenbunBox.get(ID, new CountAdjuster(1));
+...
 msg.isShowable(); // true
 msg.shown();
 msg.isShowable(); // false
 ```
 
-Or adjuster can be preset.
+Or adjuster can be preset to the `DenbunBox`.  
 
 ```java
 DenbunBox.preset(ID, new CountAdjuster(1));
@@ -72,7 +73,7 @@ DenbunBox.preset(ID, new CountAdjuster(1));
 Denbun msg = DenbunBox.get(ID);  // Has CountAdjuster.
 ```
 
-And, Suppress message.
+Following code is suppress message.
 
 ```java
 Denbun msg = DenbunBox.get(ID);
@@ -103,7 +104,7 @@ if (msg.isShowable())
 
 ## Configuration
 
-Denbun's configuration can be set using DenbunConfig methods.  
+`DenbunBox` is configured with `DenbunConfig`.  
 
 Method      | Description
 :-----------|:--------------
@@ -113,18 +114,18 @@ daoProvider | Set SharedPreference DAO (For your UnitTest)
 
 ## How it works?
 
-Denbun saves the display history to SharedPreference and manages it.
+`Denbun` save the display history to SharedPreference.
 You can find the default SharedPreference path in `DenbunConfig.PREF_NAME`.
 
-Denbun can be created using DenbunBox.
-DenbunBox has Application scope, you can access DenbunBox from anywhere in the application and create Denbun instance.
-FrequencyAdjuster can be preset in DenbunBox.
-Denbun uses FrequencyAdjuster to adjust display frequency.
+`Denbun` can be created using `DenbunBox`.
+`DenbunBox` has Application scope, you can access `DenbunBox` from anywhere in the application and  create `Denbun` instance.
+`FrequencyAdjuster` can be preset to the `DenbunBox`.
+`Denbun` uses `FrequencyAdjuster` to adjust display frequency.
 
 
 ## Testability
 
-You can mock/spy the Denbun data IO.
+You can mock/spy the `Denbun` data I/O.
 
 ```java
 DenbunConfig conf = new DenbunConfig(app);
