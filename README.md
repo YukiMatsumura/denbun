@@ -3,20 +3,20 @@
 </p>
 <br />
 
-"__Denbun__" is a lightweight library. This library supports to suppress messages and adjust frequency.<br />
+"__Denbun__" is a lightweight library. This library supports to suppress messages and adjust frequency.  
 
-Denbun("電文") in Japanese is called "Message" in English.<br />
-Many applications are display messages using Dialogs, Toasts and Snackbars. However, the message may be disturbing and may seem boring. So, it is important to display as necessary to the required timing.<br />
+Denbun("電文") in Japanese is called "Message" in English.  
+Many applications are display messages using Dialogs, Toasts and Snackbars. However, some messages may be overkill and boring.However, the message may be overkind and may seem boring.  
 
-For example...<br />
+For example...  
 
  - Dialog with "Don't ask again"
  - One shot (or N shots) dialog
  - Showing once per week
  - Dialog for light users
 
-Denbun records the display time, counts and Frequency.<br />
-It helps to calculate the best timing of next display.<br />
+Denbun is save the display time, counts and Frequency.  
+It helps to calculate the best timing of next display.  
 
 <br />
 
@@ -34,39 +34,46 @@ compile 'com.yuki312:denbun:<latest version>'
 
 ## Usage
 
-First, initialize DenbunBox in `Application.onCreate`.
+First, initialize `DenbunBox` in `Application.onCreate`.  
 
 ```java
 DenbunBox.init(new DenbunConfig(this));
 ```
 
-Following code will record the message state.
-Message state will stored to SharedPreference.  
+Next, get a `Denbun` instance.  
+The message state is restored to the Denbun instance.  
 
 ```java
 Denbun msg = DenbunBox.get(ID);
-msg.shown(() -> dialog.show());
 ```
 
-Display frequency can be adjusted with the adjuster.
+Following code will save the message state.  
+
+```java
+Denbun msg = DenbunBox.get(ID);
+msg.shown();
+```
+
+Display frequency can be adjusted with the adjuster.  
 
 ```java
 // This message is displayed only once.
 Denbun msg = DenbunBox.get(ID, new CountAdjuster(1));
-assert msg.isShowable() == true;
+...
+msg.isShowable(); // true
 msg.shown();
-assert msg.isShowable() == false;
+msg.isShowable(); // false
 ```
 
-Or
+Or adjuster can be preset to the `DenbunBox`.  
 
 ```java
-DenbunBox.preset(ID, new CountAdjyster(1));
+DenbunBox.preset(ID, new CountAdjuster(1));
 ...
-Denbun msg = DenbunBox.get(ID);
+Denbun msg = DenbunBox.get(ID);  // Has CountAdjuster.
 ```
 
-And, Suppress message.
+Following code is suppress message.
 
 ```java
 Denbun msg = DenbunBox.get(ID);
@@ -95,20 +102,30 @@ if (msg.isShowable())
 ```
 
 
+## Configuration
+
+`DenbunBox` is configured with `DenbunConfig`.  
+
+Method      | Description
+:-----------|:--------------
+preference  | Set SharedPreference to save message history
+daoProvider | Set SharedPreference DAO (For your UnitTest)
+
+
 ## How it works?
 
-Denbun saves the display history to SharedPreference and manages it.
+`Denbun` save the display history to SharedPreference.
 You can find the default SharedPreference path in `DenbunConfig.PREF_NAME`.
 
-Denbun can be created using DenbunBox.
-DenbunBox has Application scope, you can access DenbunBox from anywhere in the application and create Denbun instance.
-FrequencyAdjuster can be preset in DenbunBox.
-Denbun uses FrequencyAdjuster to adjust display frequency.
+`Denbun` can be created using `DenbunBox`.
+`DenbunBox` has Application scope, you can access `DenbunBox` from anywhere in the application and  create `Denbun` instance.
+`FrequencyAdjuster` can be preset to the `DenbunBox`.
+`Denbun` uses `FrequencyAdjuster` to adjust display frequency.
 
 
 ## Testability
 
-You can mock/spy the Denbun data IO.
+You can mock/spy the `Denbun` data I/O.
 
 ```java
 DenbunConfig conf = new DenbunConfig(app);

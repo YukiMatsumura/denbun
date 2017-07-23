@@ -8,9 +8,8 @@ import com.yuki312.denbun.time.Time;
 import static com.yuki312.denbun.Util.nonNull;
 
 /**
- * Denbun("Message").
- * This state is saved/restored to/from Preference.
- * And Denbun instance will cached in XXX and recycled. TODO:
+ * Denbun means "Message".
+ * Denbun state is saved/restored to/from SharedPreference.
  *
  * Created by Yuki312 on 2017/07/03.
  */
