@@ -3,10 +3,12 @@
 </p>
 <br />
 
-"__Denbun__" is a lightweight library. This library supports to suppress messages and adjust frequency.  
+Many applications are display messages using Dialogs, Toasts, Snackbars, Tutorial, etc.  
+However, some messages may be overkind and boring.  
 
+"__Denbun__" is a lightweight library. 
 Denbun("電文") in Japanese is called "Message" in English.  
-Many applications are display messages using Dialogs, Toasts and Snackbars. However, some messages may be overkill and boring.However, the message may be overkind and may seem boring.  
+This library supports to suppress messages and adjust frequency.  
 
 For example...  
 
