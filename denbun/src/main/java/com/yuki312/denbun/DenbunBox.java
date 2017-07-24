@@ -2,13 +2,14 @@ package com.yuki312.denbun;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
+import android.support.annotation.RestrictTo;
 import android.util.Log;
 import com.yuki312.denbun.adjuster.FrequencyAdjuster;
 import com.yuki312.denbun.internal.DenbunId;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.support.annotation.RestrictTo.Scope.TESTS;
 import static com.yuki312.denbun.Util.nonNull;
 import static com.yuki312.denbun.Util.notBlank;
 
@@ -49,7 +50,7 @@ public class DenbunBox {
     DenbunBox.dao = config.daoProvider().create(config.preference());
   }
 
-  @VisibleForTesting public static void reset() {
+  @RestrictTo(TESTS) public static void reset() {
     config = null;
     presetAdjuster = null;
   }
